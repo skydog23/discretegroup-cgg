@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="lib/numericalMethods-22.05.06.jar"/>
 	<classpathentry kind="lib" path="lib/PuncturedTorusHelp.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ProjectiveGeometry"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/projgeom"/>
 	<classpathentry kind="lib" path="/lib/dragonfly.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jreality"/>
 	<classpathentry kind="lib" path="/jreality/lib/antlr-3.4-complete.jar"/>

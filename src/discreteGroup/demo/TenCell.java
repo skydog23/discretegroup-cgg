@@ -34,6 +34,7 @@ import charlesgunn.jreality.viewer.LoadableScene;
 import charlesgunn.jreality.viewer.PluginSceneLoader;
 import charlesgunn.math.Biquaternion;
 import charlesgunn.math.Biquaternion.Metric;
+import charlesgunn.math.p5.PlueckerLineGeometry;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.IndexedFaceSetFactory;
 import de.jreality.geometry.IndexedFaceSetUtility;
@@ -62,7 +63,6 @@ import de.jtem.discretegroup.core.DiscreteGroupElement;
 import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
 import de.jtem.discretegroup.util.WingedEdge;
 import de.jtem.discretegroup.util.WingedEdgeUtility;
-import de.jtem.projgeom.PlueckerLineGeometry;
 
 public class TenCell extends LoadableScene  {
 

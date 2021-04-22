@@ -12,6 +12,7 @@ import javax.swing.SwingConstants;
 import charlesgunn.jreality.newtools.FlyTool;
 import charlesgunn.jreality.plugin.TermesSpherePlugin;
 import charlesgunn.jreality.viewer.Assignment;
+import charlesgunn.math.p5.PlueckerLineGeometry;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.IndexedFaceSetFactory;
 import de.jreality.math.Matrix;
@@ -29,7 +30,6 @@ import de.jreality.scene.Viewer;
 import de.jreality.shader.CommonAttributes;
 import de.jreality.util.CameraUtility;
 import de.jreality.util.SceneGraphUtility;
-import de.jtem.projgeom.PlueckerLineGeometry;
 
 public class RinusPolyhedronS3Rotational extends Assignment {
 

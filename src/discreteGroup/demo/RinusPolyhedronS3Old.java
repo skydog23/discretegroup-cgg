@@ -15,6 +15,7 @@ import charlesgunn.jreality.plugin.TermesSpherePlugin;
 import charlesgunn.jreality.tools.RotateShapeTool;
 import charlesgunn.jreality.tools.TranslateShapeTool;
 import charlesgunn.jreality.viewer.Assignment;
+import charlesgunn.math.p5.PlueckerLineGeometry;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.IndexedFaceSetFactory;
 import de.jreality.math.Matrix;
@@ -36,7 +37,6 @@ import de.jreality.shader.ImplodePolygonShader;
 import de.jreality.shader.ShaderUtility;
 import de.jreality.util.CameraUtility;
 import de.jreality.util.SceneGraphUtility;
-import de.jtem.projgeom.PlueckerLineGeometry;
 
 public class RinusPolyhedronS3Old extends Assignment {
 

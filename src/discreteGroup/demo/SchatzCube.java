@@ -45,6 +45,7 @@ import charlesgunn.jreality.texture.RopeTextureFactory;
 import charlesgunn.jreality.texture.SimpleTextureFactory;
 import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.math.Utility;
+import charlesgunn.math.p5.PlueckerLineGeometry;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.BezierPatchMesh;
 import de.jreality.geometry.GeometryUtility;
@@ -85,7 +86,6 @@ import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
 import de.jtem.discretegroup.core.DiscreteGroupSimpleConstraint;
 import de.jtem.discretegroup.core.DiscreteGroupUtility;
 import de.jtem.jrworkspace.plugin.simplecontroller.SimpleController.PropertiesMode;
-import de.jtem.projgeom.PlueckerLineGeometry;
 
 public class SchatzCube extends Assignment {
 

@@ -35,6 +35,7 @@ import charlesgunn.jreality.newtools.RotateTool;
 import charlesgunn.jreality.tools.ToolManager;
 import charlesgunn.jreality.tools.UserTool;
 import charlesgunn.jreality.viewer.Assignment;
+import charlesgunn.math.p5.PlueckerLineGeometry;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.GeometryUtility;
 import de.jreality.geometry.IndexedFaceSetFactory;
@@ -66,7 +67,6 @@ import de.jtem.discretegroup.core.DiscreteGroupElement;
 import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
 import de.jtem.discretegroup.util.TranslateTool;
 import de.jtem.discretegroup.util.WingedEdge;
-import de.jtem.projgeom.PlueckerLineGeometry;
 import discreteGroup.tools.CopyClickTool;
 
 public class Cell24 extends Assignment {
