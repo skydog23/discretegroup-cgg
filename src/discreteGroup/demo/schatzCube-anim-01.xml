@@ -1,0 +1,54 @@
+<charlesgunn.anim.io.ImportExport>
+  <timestamp>2018-02-13 12:05:19.624 CET</timestamp>
+  <animationPanel>
+    <keyFrames serialization="custom">
+      <unserializable-parents/>
+      <linked-list>
+        <default/>
+        <int>2</int>
+        <KeyFrame>
+          <td>
+            <time>0.0</time>
+          </td>
+          <value/>
+        </KeyFrame>
+        <KeyFrame>
+          <td>
+            <time>1.0</time>
+          </td>
+          <value reference="../../KeyFrame/value"/>
+        </KeyFrame>
+      </linked-list>
+    </keyFrames>
+    <inspectedKeyFrame>1</inspectedKeyFrame>
+    <currentKeyFrame reference="../keyFrames/linked-list/KeyFrame[2]"/>
+    <currentTime>1.0</currentTime>
+    <totalTicks>30</totalTicks>
+    <totalSeconds>1.0</totalSeconds>
+    <playbackFactor>0.024999999947630646</playbackFactor>
+    <stem>spiral</stem>
+    <loopPlay>false</loopPlay>
+    <recording>false</recording>
+    <isPaused>true</isPaused>
+    <playbackMode>NORMAL</playbackMode>
+    <recordPrefs>
+      <stemName>schatzCubeDeltoid-</stemName>
+      <currentDirectoryPath>/gunn_local/Movies/schatzcube/18.02.13-schatzCubeDeltoid</currentDirectoryPath>
+      <fileFormatSuffix>png</fileFormatSuffix>
+      <frameCountFormatString>%04d</frameCountFormatString>
+      <antialiasing>4</antialiasing>
+      <fps>30</fps>
+      <startCount>0</startCount>
+      <saveAlpha>true</saveAlpha>
+      <saveScreenshot>false</saveScreenshot>
+      <startTime>-1.0</startTime>
+      <endTime>-1.0</endTime>
+      <dimension>
+        <width>1920</width>
+        <height>1080</height>
+      </dimension>
+    </recordPrefs>
+    <resourceDir>src/discreteGroup/demo/</resourceDir>
+    <globalPlaybackFactor>1.0</globalPlaybackFactor>
+  </animationPanel>
+</charlesgunn.anim.io.ImportExport>

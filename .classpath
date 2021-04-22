@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry combineaccessrules="false" kind="src" path="/discretegroup"/>
+	<classpathentry excluding="discreteGroup/maniview/ManiviewFactory.java|discreteGroup/maniview/NewManiviewFactory.java|discreteGroup/maniview/NoneuclideanManiviewFactory.java|discreteGroup/gavrog/|discreteGroup/test/TestGavrog.java|discreteGroup/demo/ArchimedeanSolids.java|discreteGroup/core/|discreteGroup/tutorial/|discreteGroup/plugin/|discreteGroup/maniview/Platycosm.java|discreteGroup/tensegrity/|discreteGroup/maniview/TestTinManPortal.java|discreteGroup/wallpaper2/|discreteGroup/wallpaper/Wallpaper.java|discreteGroup/tensegrity/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src-test"/>
+	<classpathentry kind="src" path="src/discreteGroup/tensegrity"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/lib/anim.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/filedrop.jar"/>
+	<classpathentry kind="lib" path="lib/java2d.jar"/>
+	<classpathentry kind="lib" path="lib/jh.jar"/>
+	<classpathentry kind="lib" path="lib/numericalMethods-22.05.06.jar"/>
+	<classpathentry kind="lib" path="lib/PuncturedTorusHelp.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ProjectiveGeometry"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/projgeom"/>
+	<classpathentry kind="lib" path="/lib/dragonfly.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jreality"/>
+	<classpathentry kind="lib" path="/jreality/lib/antlr-3.4-complete.jar"/>
+	<classpathentry kind="lib" path="/jreality/lib/beans.jar"/>
+	<classpathentry kind="lib" path="/jreality/lib/xpp3_min-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="/jreality/lib/xstream-1.4.7.jar"/>
+	<classpathentry kind="lib" path="/jreality/lib/jogamp/jogl-all.jar"/>
+	<classpathentry kind="lib" path="/jreality/lib/jrworkspace.jar" sourcepath="/jrworkspace"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

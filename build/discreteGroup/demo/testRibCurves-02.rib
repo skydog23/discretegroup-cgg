@@ -1,0 +1,365 @@
+# SceneGraphComponent rmanProxySGC0
+AttributeBegin
+Translate .435 0 0
+Rotate 90 1 0 0
+TextureCoordinates [0 0.115322 1 0.115322  0 -0.115322 1 -0.115322  ]
+Cylinder 0.186976 -0.484508 0.484508 360
+AttributeEnd
+AttributeBegin
+ConcatTransform [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.11055728 0.48450848 0.0 1.0 ]
+TextureCoordinates [0 0.115322 0 0.187983 1 0.115322  1 0.187983]
+Torus 0.324508 0.186976 0 360 90
+AttributeEnd
+AttributeBegin
+Translate 0 .809 0
+Rotate 90 0 1 0
+Rotate 90 0 0 1
+TextureCoordinates [0 0.312017 1 0.312017  0 0.187983  1 0.187983]
+Cylinder 0.186976 -0.110557 0.110557 360
+AttributeEnd
+AttributeBegin
+ConcatTransform [6.123234E-17 1.0 0.0 0.0 -1.0 6.123234E-17 0.0 0.0 0.0 0.0 1.0 0.0 -0.11055728 0.48450848 0.0 1.0 ]
+TextureCoordinates [0 0.312017 0 0.384678 1 0.312017  1 0.384678]
+Torus 0.324508 0.186976 0 360 90
+AttributeEnd
+AttributeBegin
+Rotate 180 0 0 1
+Translate .435 0 0
+Rotate 90 1 0 0
+TextureCoordinates [0 0.615322  1 0.615322  0 0.384678 1 0.384678 ]
+Cylinder 0.186976 -0.484508 0.484508 360
+AttributeEnd
+AttributeBegin
+Translate -.11 -.484 0
+Rotate 180 0 0 1
+TextureCoordinates [0 0.615322 0 0.687983 1 0.615322  1 0.687983]
+Torus 0.324508 0.186976 0 360 90
+AttributeEnd
+AttributeBegin
+Rotate 180 0 0 1
+Translate 0 .809 0
+Rotate 90 0 1 0
+Rotate 90 0 0 1
+TextureCoordinates [0 0.687983 1 0.687983  0 0.812017 1 0.812017]
+Cylinder 0.186976 -0.110557 0.110557 360
+AttributeEnd
+AttributeBegin
+Translate .11 -.484 0
+Rotate 270 0 0 1
+TextureCoordinates [0 0.812017 0 0.884678 1 0.812017  1 0.884678]
+Torus 0.324508 0.186976 0 360 90
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent threeFold2
+AttributeBegin
+ConcatTransform [-1.110223E-16 3.330669E-16 1.0 0.0 1.0 -1.110223E-16 3.330669E-16 0.0 3.330669E-16 1.0 -1.110223E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent organizer
+AttributeBegin
+ConcatTransform [1.4142135 0.0 0.0 0.0 0.0 1.4142135 0.0 0.0 0.0 0.0 1.4142135 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent basgcEvolution
+AttributeBegin
+# SceneGraphComponent Unnamed 2
+AttributeBegin
+# IndexedFaceSet Unnamed 51
+AttributeBegin
+Color [1.0 1.0 1.0 ]
+Opacity [1.0 1.0 1.0 ]
+Opacity [1.0 1.0 1.0 ]
+Surface "transformedpaintedplastic" "Ks"  0.7 "string texturename" "background-05.tex""specularcolor" [1.0 1.0 1.0 ]"Ka"  0.0 "Kd"  1.0 "roughness"  0.1 
+Surface "testtexture2" "string coordinatesystem" "current" "scaleu" 8 "scalev" 8
+# SceneGraphComponent Unnamed 52
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent polyhedral part
+AttributeBegin
+# SceneGraphComponent DG Follow Camera
+AttributeBegin
+ConcatTransform [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG Change of Basis
+AttributeBegin
+ConcatTransform [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG Parent
+AttributeBegin
+ConcatTransform [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent Unnamed 3
+AttributeBegin
+ConcatTransform [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 7
+AttributeBegin
+ConcatTransform [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 -1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 8
+AttributeBegin
+ConcatTransform [-1.110223E-16 3.330669E-16 1.0 0.0 1.0 -1.110223E-16 3.330669E-16 0.0 3.330669E-16 1.0 -1.110223E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 9
+AttributeBegin
+ConcatTransform [-1.110223E-16 3.330669E-16 -1.0 0.0 1.0 -1.110223E-16 -3.330669E-16 0.0 3.330669E-16 1.0 1.110223E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 10
+AttributeBegin
+ConcatTransform [-1.110223E-16 3.330669E-16 1.0 0.0 1.0 -1.110223E-16 3.330669E-16 0.0 -3.330669E-16 -1.0 1.110223E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 11
+AttributeBegin
+ConcatTransform [6.661338E-16 1.0 -2.220446E-16 0.0 -2.220446E-16 6.661338E-16 1.0 0.0 1.0 -2.220446E-16 6.661338E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 12
+AttributeBegin
+ConcatTransform [-1.110223E-16 3.330669E-16 -1.0 0.0 1.0 -1.110223E-16 -3.330669E-16 0.0 -3.330669E-16 -1.0 -1.110223E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 13
+AttributeBegin
+ConcatTransform [6.661338E-16 1.0 2.220446E-16 0.0 -2.220446E-16 6.661338E-16 -1.0 0.0 1.0 -2.220446E-16 -6.661338E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 14
+AttributeBegin
+ConcatTransform [0.0 -1.0 1.1093356E-31 0.0 -2.220446E-16 0.0 1.0 0.0 1.0 1.1093356E-31 6.661338E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 15
+AttributeBegin
+ConcatTransform [6.661338E-16 1.0 -2.220446E-16 0.0 -2.220446E-16 6.661338E-16 1.0 0.0 -1.0 2.220446E-16 -6.661338E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 16
+AttributeBegin
+ConcatTransform [0.0 -1.0 -1.1093356E-31 0.0 -2.220446E-16 0.0 -1.0 0.0 1.0 1.1093356E-31 -6.661338E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 17
+AttributeBegin
+ConcatTransform [6.661338E-16 1.0 2.220446E-16 0.0 -2.220446E-16 6.661338E-16 -1.0 0.0 -1.0 2.220446E-16 6.661338E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 18
+AttributeBegin
+ConcatTransform [0.0 -1.0 1.1093356E-31 0.0 -2.220446E-16 0.0 1.0 0.0 -1.0 -1.1093356E-31 -6.661338E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 19
+AttributeBegin
+ConcatTransform [1.0 1.110223E-16 9.992007E-16 0.0 3.330669E-16 -1.0 -1.110223E-16 0.0 -3.330669E-16 -3.330669E-16 1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 20
+AttributeBegin
+ConcatTransform [-1.0 1.110223E-16 -3.330669E-16 0.0 3.330669E-16 1.0 -3.330669E-16 0.0 -1.110223E-16 9.992007E-16 1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 21
+AttributeBegin
+ConcatTransform [0.0 -1.0 -1.1093356E-31 0.0 -2.220446E-16 0.0 -1.0 0.0 -1.0 -1.1093356E-31 6.661338E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 22
+AttributeBegin
+ConcatTransform [1.0 1.110223E-16 -9.992007E-16 0.0 3.330669E-16 -1.0 1.110223E-16 0.0 -3.330669E-16 -3.330669E-16 -1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 23
+AttributeBegin
+ConcatTransform [-1.0 1.110223E-16 3.330669E-16 0.0 3.330669E-16 1.0 3.330669E-16 0.0 -1.110223E-16 9.992007E-16 -1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 24
+AttributeBegin
+ConcatTransform [-1.0 1.110223E-16 -3.330669E-16 0.0 -3.330669E-16 -1.0 -1.110223E-16 0.0 -1.110223E-16 -3.330669E-16 1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 25
+AttributeBegin
+ConcatTransform [4.4373426E-31 1.3322676E-15 1.0 0.0 -1.0 4.560602E-31 4.9303807E-32 0.0 1.2325952E-32 1.0 -4.440892E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 26
+AttributeBegin
+ConcatTransform [-1.0 1.110223E-16 3.330669E-16 0.0 -3.330669E-16 -1.0 1.110223E-16 0.0 -1.110223E-16 -3.330669E-16 -1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 27
+AttributeBegin
+ConcatTransform [4.4373426E-31 1.3322676E-15 -1.0 0.0 -1.0 4.560602E-31 -4.9303807E-32 0.0 1.2325952E-32 1.0 4.440892E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 28
+AttributeBegin
+ConcatTransform [-2.2186713E-31 -6.661338E-16 1.0 0.0 -1.0 2.220446E-16 0.0 0.0 -6.661338E-16 -1.0 -2.220446E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Unnamed 29
+AttributeBegin
+ConcatTransform [-2.2186713E-31 -6.661338E-16 -1.0 0.0 -1.0 2.220446E-16 0.0 0.0 -6.661338E-16 -1.0 2.220446E-16 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent DG fundamental Domain
+AttributeBegin
+# SceneGraphComponent Unnamed 4
+AttributeBegin
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Borromean rings five-fold parent
+AttributeBegin
+ConcatTransform [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 ]
+AttributeEnd
+AttributeEnd
+# SceneGraphComponent Camera avatar node
+AttributeBegin
+ConcatTransform [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 ]
+# SceneGraphComponent Camera scale node
+AttributeBegin
+ConcatTransform [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 7.6 1.0 ]
+# SceneGraphComponent lights
+AttributeBegin
+# SceneGraphComponent light0
+AttributeBegin
+ConcatTransform [0.8676317 -0.19855252 -0.45584232 0.0 -0.19855252 0.7021712 -0.68376344 0.0 0.45584232 0.68376344 0.5698029 0.0 0.0 0.0 0.0 1.0 ]
+AttributeEnd
+# SceneGraphComponent light1
+AttributeBegin
+ConcatTransform [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 ]
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+AttributeEnd
+WorldEnd

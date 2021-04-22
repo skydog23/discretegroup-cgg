@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<title>Family of Reguli of a Skew Quad</title>
+</head>
+
+<body lang="EN-US" link=blue vlink=purple>
+<h2 align="center">Platonic and Archimedean Solids and Duals: a Demo</h2>
+<p align="center">Charles Gunn, gunn@math.tu-berlin.de</p>
+<p align="center"><em>First-time users: See<a href="PluginSceneLoader.html"> this introduction</a>. to the visualization tools involved.</em></p>
+<h3>Mathematical background </h3>
+<p>In euclidean space, there are two famous families of polyhedra. The platonic solids are characterized by the property that each face is an identical regular polygon. The Archimedean solids are characterized by the property that all faces are regular polygons, and all vertices are equivalent (meaning that the symmetries of the solid are transitive on the vertices. I think:)). Sometimes the terms regular and semi-regular are used instead of Platonic and Archimedean, resp. There are also regular star solids which don't fit into this category, so probably one has to specify regular convex polygons (to disqualify the star-shaped faces.)</p>
+<p>Platonic and Archimedean solids can be characterized by their vertex figure: the sequence of regular polygons that surround a vertex. This is well-defined since all vertices are identical in both cases. The polygons themselves can be represented by their number of sides <em>n</em>. So, the name of the cube in this nomenclature is 4.4.4, since 3 squares meet at each vertex. Each of these polyhedra also has a dual polyhedra, formed by joining the midpoints of the faces along edges which are perpendicular bisectors of the original edges. By duality, the resulting dual polyhedra has identical faces (since the original figure has identical vertices) but the vertices are different.</p>
+<p>With this application the user can explore these two families of solids and their duals.</p>
+<h3>Usage</h3>
+<p>On startup the user should see something like the figure below. This displays the 13 Archimedean solids and their duals positioned on the 12 vertices of the cuboctahedron (3.4.3.4) and its central point. </p>
+<p>If the left window is not visible, you're probably not reading this document! Use the menu item &quot;Window-&gt;Left Slot&quot; to toggle display of the panel there.</p>
+<p>The current control is exclusively through keyboard and mouse. Double-clicking on a solid will focus on it and remove all the other solids from the display. Double click again to return to the group. Keyboard controls include:</p>
+<ul>
+  <li>'1' toggle between platonic and archimedean.</li>
+  <li>'2' toggle display of the platonic/archimedean solids</li>
+  <li>'3' toggle display of the duals</li>
+  <li>'4' toggle transparent duals (default: true)</li>
+  <li>'5' toggle display of name labels (only for groups)</li>
+</ul>
+<p>Open the panel labeled &quot;Sky&quot; in order to change or disable the skybox.</p>
+<p>Use the menu item &quot;File-&gt;Export-&gt;Image&quot; if you'd like to save off images (.png or .jpg) from the application.</p>
+<p><img src="archieDoc-01.jpg" width="600" height="324"></p>
+</body>
+</html>

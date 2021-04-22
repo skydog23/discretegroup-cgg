@@ -1,0 +1,21 @@
+// $ANTLR 2.7.4: complex.g -> ComplexListParserTokenTypes.txt$
+ComplexListParser    // output token vocab name
+OPEN_BRACE=4
+COLLON=5
+CLOSE_BRACE=6
+PLUS=7
+MINUS=8
+INTEGER_THING=9
+DOT=10
+STAR=11
+HAT=12
+LITERAL_I="I"=13
+BACKS=14
+SLASH=15
+DDOT=16
+ID("an identifier")=17
+ID_LETTER=18
+DIGIT=19
+STRING=20
+ESC=21
+WS_=22

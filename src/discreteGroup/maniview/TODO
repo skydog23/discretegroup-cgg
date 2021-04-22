@@ -1,0 +1,8 @@
+figure out why the display lists are not deactivated when showing camera repn
+	actually they are once the "avatar" is displayed!
+reactivate 3d draw tool (TraceTool) for portal
+filter fly stick data: it's somewhat noisy (but many samples)
+figure out how to run midi code on master only
+turn off generator labels on faces
+portal tracking system calibration: glasses seem to report a position lower than really is.
+split tabs each into a shrinkpanel with its own html doc
