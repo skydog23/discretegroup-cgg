@@ -116,7 +116,7 @@
   </entry>
   <entry>
     <string>de.jreality.plugin.menu.CameraMenu:zoomEnabled</string>
-    <boolean>true</boolean>
+    <boolean>false</boolean>
   </entry>
   <entry>
     <string>de.jreality.plugin.basic.Shell:shrinked</string>

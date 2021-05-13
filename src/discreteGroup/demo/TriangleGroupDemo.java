@@ -648,7 +648,7 @@ public class TriangleGroupDemo extends Assignment {
 		super.display();
 		updateTextures();
 
-		jrviewer.setPropertiesResource(this.getClass(), "triangleGroup.xml");
+		jrviewer.setPropertiesResource(this.getClass(), "discreteGroupCGG/src/discreteGroup/demo/triangleGroup.xml");
 		viewer = jrviewer.getViewer();
 		root2worldPath = SceneGraphUtility.getPathsBetween(viewer.getSceneRoot(), myroot).get(0);
 		final Color URBackground = new Color(.8f, .85f, .68f);
