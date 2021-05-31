@@ -6,6 +6,7 @@ package discreteGroup.demo;
 
 import java.awt.Color;
 
+import charlesgunn.jreality.newtools.FlyTool;
 import charlesgunn.jreality.viewer.Assignment;
 import de.jreality.math.P3;
 import de.jreality.math.Pn;
@@ -13,7 +14,6 @@ import de.jreality.scene.SceneGraphComponent;
 import de.jreality.scene.SceneGraphPath;
 import de.jreality.scene.Viewer;
 import de.jreality.shader.CommonAttributes;
-import de.jreality.tutorial.util.FlyTool;
 import de.jreality.util.CameraUtility;
 import de.jreality.util.SceneGraphUtility;
 import de.jtem.discretegroup.core.DirichletDomain;
@@ -35,13 +35,19 @@ public class CopyClickToolDemo extends Assignment {
 		dg.setDimension(3);
 		DiscreteGroupElement dge[] = new DiscreteGroupElement[6];
 		double k = .5;
-		double[][] tlates = {{k,0,0,1},{0,k,0,1},{0,0,k,1}};
-		String[] names = {"x","y","z"}; //,"X","Y","Z"};
-		for (int i = 0; i<tlates.length; ++i)	{
+		double[][] tlates = {{k,0,0,1},{0,k,0,1},{0,0,k,1},
+				{-k,0,0,1},{0,-k,0,1},{0,0,-k,1}};
+		String[] names = {"x","y","z","X","Y","Z"};
+		for (int i = 0; i<3; ++i)	{
 			double[] mat = P3.makeTranslationMatrix(null, tlates[i], Pn.EUCLIDEAN);
+//			mat = P3.makeScrewMotionMatrix(null, P3.originP3, tlates[i], Math.PI, Pn.EUCLIDEAN);
 			dge[2*i] = new DiscreteGroupElement(Pn.EUCLIDEAN, mat, names[i]);
 			dge[2*i+1] = dge[2*i].getInverse();
 		}
+//		for (int i = 0; i<tlates.length; ++i)	{
+//			double[] mat = P3.makeReflectionMatrix(null, tlates[i], Pn.EUCLIDEAN);
+//			dge[i] = new DiscreteGroupElement(Pn.EUCLIDEAN, mat, names[i]);
+//		}
 		dg.setGenerators(dge);
 		dg.setCenterPoint(new double[]{k/2,k/2,k/2,1});
 		dg.setConstraint(new DiscreteGroupSimpleConstraint(1));
@@ -51,10 +57,12 @@ public class CopyClickToolDemo extends Assignment {
 		SceneGraphComponent sgc = SceneGraphUtility.createFullSceneGraphComponent("geom");
 //		sgc.getAppearance().setAttribute(CommonAttributes.FACE_DRAW, false);
 		DirichletDomain dirdom = new DirichletDomain(dg);
-		dirdom.setDirichletDomainOrbit(30);		
+		dirdom.setDirichletDomainOrbit(100);		
 		dirdom.update();
 		sgc.setGeometry(dirdom.getDirichletDomain());
-
+		sgc.getAppearance().setAttribute(CommonAttributes.VERTEX_DRAW, true);
+		sgc.getAppearance().setAttribute("lineShader.diffuseColor", Color.yellow);
+		sgc.getAppearance().setAttribute("pointShader.diffuseColor", Color.yellow);
 		dgsgr = new DiscreteGroupSceneGraphRepresentation(dg);
 		dgsgr.setWorldNode(sgc);
 		dgsgr.update();
@@ -66,7 +74,6 @@ public class CopyClickToolDemo extends Assignment {
 	public void display() {
 		// TODO Auto-generated method stub
 		super.display();
-		Viewer viewer = jrviewer.getViewer();
 		FlyTool ft = new FlyTool();
 		ft.setGain(.15);
 		CameraUtility.getCameraNode(viewer).addTool(ft);

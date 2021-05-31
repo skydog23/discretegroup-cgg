@@ -33,6 +33,7 @@ import javax.swing.JCheckBox;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import charlesgunn.jreality.newtools.FlyTool;
 import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.IndexedFaceSetFactory;
@@ -60,7 +61,6 @@ import de.jreality.shader.DefaultPointShader;
 import de.jreality.shader.DefaultTextShader;
 import de.jreality.shader.ImplodePolygonShader;
 import de.jreality.shader.ShaderUtility;
-import de.jreality.tutorial.util.FlyTool;
 import de.jreality.util.CameraUtility;
 import de.jreality.util.SceneGraphUtility;
 import de.jtem.discretegroup.core.DirichletDomain;

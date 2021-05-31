@@ -5,7 +5,6 @@
 package discreteGroup.demo;
 
 import static de.jreality.shader.CommonAttributes.DIFFUSE_COLOR;
-import static de.jreality.shader.CommonAttributes.EDGE_DRAW;
 import static de.jreality.shader.CommonAttributes.FACE_DRAW;
 import static de.jreality.shader.CommonAttributes.LIGHTING_ENABLED;
 import static de.jreality.shader.CommonAttributes.LINE_SHADER;
@@ -15,7 +14,6 @@ import static de.jreality.shader.CommonAttributes.POINT_SHADER;
 import static de.jreality.shader.CommonAttributes.POLYGON_SHADER;
 import static de.jreality.shader.CommonAttributes.TUBES_DRAW;
 import static de.jreality.shader.CommonAttributes.TUBE_RADIUS;
-import static de.jreality.shader.CommonAttributes.VERTEX_DRAW;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -31,16 +29,11 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import charlesgunn.jreality.geometry.projective.LineUtility;
-import charlesgunn.jreality.newtools.RotateTool;
-import charlesgunn.jreality.tools.ToolManager;
-import charlesgunn.jreality.tools.UserTool;
+import charlesgunn.jreality.newtools.FlyTool;
 import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.math.p5.PlueckerLineGeometry;
 import charlesgunn.util.TextSlider;
-import de.jreality.geometry.GeometryUtility;
 import de.jreality.geometry.IndexedFaceSetFactory;
-import de.jreality.geometry.IndexedFaceSetUtility;
-import de.jreality.geometry.PointSetUtility;
 import de.jreality.geometry.Primitives;
 import de.jreality.math.Matrix;
 import de.jreality.math.MatrixBuilder;
@@ -52,20 +45,17 @@ import de.jreality.scene.Camera;
 import de.jreality.scene.Geometry;
 import de.jreality.scene.SceneGraphComponent;
 import de.jreality.scene.Transformation;
-import de.jreality.scene.Viewer;
 import de.jreality.scene.tool.Tool;
 import de.jreality.shader.CommonAttributes;
 import de.jreality.shader.DefaultGeometryShader;
 import de.jreality.shader.ImplodePolygonShader;
 import de.jreality.shader.ShaderUtility;
-import de.jreality.tutorial.util.FlyTool;
 import de.jreality.util.CameraUtility;
 import de.jreality.util.SceneGraphUtility;
 import de.jtem.discretegroup.core.DirichletDomain;
 import de.jtem.discretegroup.core.DiscreteGroup;
 import de.jtem.discretegroup.core.DiscreteGroupElement;
 import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
-import de.jtem.discretegroup.util.TranslateTool;
 import de.jtem.discretegroup.util.WingedEdge;
 import discreteGroup.tools.CopyClickTool;
 

@@ -22,7 +22,7 @@ import de.jreality.scene.SceneGraphComponent;
 import de.jreality.scene.data.Attribute;
 import de.jreality.shader.CommonAttributes;
 import de.jreality.util.SceneGraphUtility;
-import discreteGroup.demo.FanSolid.Disk;
+import discreteGroup.demo.KemperSolids.Disk;
 import discreteGroup.util.ArchimedeanSolidsUtility;
 
 public class PolarPlaneDemo extends LoadableScene {
@@ -31,7 +31,7 @@ public class PolarPlaneDemo extends LoadableScene {
 	public SceneGraphComponent makeWorld() {
 		final SceneGraphComponent diskWithArrows = SceneGraphUtility.createFullSceneGraphComponent("diskwitharrows");
 		final SceneGraphComponent world = SceneGraphUtility.createFullSceneGraphComponent("world");
-		Disk theDisk = new FanSolid().new Disk();
+		Disk theDisk = new KemperSolids().new Disk();
 		theDisk.setHoleSize(0.8);//0.0); //
 		theDisk.setColor( Color.cyan);
 		theDisk.setSaturated(1.0);

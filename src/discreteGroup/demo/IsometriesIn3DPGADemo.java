@@ -38,7 +38,7 @@ import de.jtem.discretegroup.core.DiscreteGroupElement;
 import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
 import de.jtem.discretegroup.core.DiscreteGroupSimpleConstraint;
 
-public class EurographicsDemo2 extends Assignment {
+public class IsometriesIn3DPGADemo extends Assignment {
 
 	boolean justOne = true, reallyJustOne = false;
 	@Override
@@ -259,6 +259,6 @@ public class EurographicsDemo2 extends Assignment {
 	}
 
 	public static void main(String[] args) {
-		new EurographicsDemo2().display();
+		new IsometriesIn3DPGADemo().display();
 	}
 }

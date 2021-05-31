@@ -26,12 +26,16 @@ import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.jreality.viewer.LoadableScene;
 import charlesgunn.jreality.viewer.PluginSceneLoader;
 import charlesgunn.util.TextSlider;
+import de.jreality.geometry.IndexedFaceSetFactory;
 import de.jreality.geometry.IndexedFaceSetUtility;
+import de.jreality.geometry.IndexedLineSetUtility;
 import de.jreality.geometry.Primitives;
+import de.jreality.geometry.QuadMeshFactory;
 import de.jreality.geometry.ThickenedSurfaceFactory;
 import de.jreality.jogl.plugin.HelpOverlay;
 import de.jreality.math.Matrix;
 import de.jreality.math.MatrixBuilder;
+import de.jreality.math.P3;
 import de.jreality.math.Rn;
 import de.jreality.scene.Appearance;
 import de.jreality.scene.IndexedFaceSet;
@@ -43,9 +47,11 @@ import de.jreality.scene.tool.ToolContext;
 import de.jreality.shader.CommonAttributes;
 import de.jreality.util.SceneGraphUtility;
 import de.jtem.discretegroup.groups.TriangleGroup;
+import de.jtem.discretegroup.util.WingedEdge;
+import de.jtem.discretegroup.util.WingedEdgeUtility;
 import discreteGroup.util.ArchimedeanSolidsUtility;
 
-public class FanSolid extends Assignment {
+public class KemperSolids extends Assignment {
 	String type = "101";
 	String group = "*235";
 	SceneGraphComponent[] three = new SceneGraphComponent[3];
@@ -67,7 +73,8 @@ public class FanSolid extends Assignment {
 		linearHoles = true,
 		fiveCubes = true,		// specialize to case of 15 elements arranged as 5 cubes
 		doHouse = false,
-		fiveSideHouse = true;
+		fiveSideHouse = true,
+		chopCorners = true;
 	int[][] houseGroups = {{0,1,5},{2,3,4}};
 	int[] houseInds = {0,0,1,1,1,0};
 	int[] houseSides = {5,5, 10};
@@ -79,7 +86,6 @@ public class FanSolid extends Assignment {
 	@Override
 	public SceneGraphComponent getContent() {
 		if (world != null) return world;
-		IndexedFaceSet disk = null;
 		world = SceneGraphUtility.createFullSceneGraphComponent("world");
 		world.getAppearance().setAttribute("polygonShader.diffuseColor", java.awt.Color.white);
 		world.getAppearance().setAttribute(CommonAttributes.EDGE_DRAW,false);
@@ -296,7 +302,8 @@ public class FanSolid extends Assignment {
 		protected double thickness = .025,
 			phase = 0.0,
 			radius = 1.0,
-			holeSize = .5;
+			holeSize = .5,
+			cut = 1.5;
 		protected Color color = Color.white;
 		protected IndexedFaceSet disk = Primitives.regularPolygon(numSides),
 			thickDisk;
@@ -306,6 +313,7 @@ public class FanSolid extends Assignment {
 		private TextSlider thickSlider;
 		private TextSlider radiusSlider;
 		private TextSlider phaseSlider;
+		private TextSlider cutSlider;
 		private TextSlider numSlider;
 		private Box panel;
 		protected JCheckBox visBox;
@@ -316,7 +324,7 @@ public class FanSolid extends Assignment {
 			thickDiskFactory.setMakeHoles(makeHoles);
 			thickDiskFactory.setProfileCurve(holeprofile);
 			update();
-			thickDisk = thickDiskFactory.getThickenedSurface();
+//			thickDisk = thickDiskFactory.getThickenedSurface();
 			thickDiskSGC.setGeometry(thickDisk);
 		}
 		protected void update() {
@@ -328,10 +336,22 @@ public class FanSolid extends Assignment {
 			MatrixBuilder.euclidean().scale(radius).assignTo(thickDiskSGC);
 		}
 		private void updateGeometry() {
-			disk = Primitives.regularAnnulus(numSides, phase, holeSize);
+			disk = truncatedAnnulus(numSides, phase, holeSize, cut);
 			thickDiskFactory.setSurface(disk);
 			thickDiskFactory.setThickness(thickness);
 			thickDiskFactory.update();
+			thickDisk = thickDiskFactory.getThickenedSurface();
+//			if (chopCorners)  {
+//				WingedEdge we = WingedEdgeUtility.convertConvexPolyhedronToWingedEdge(thickDisk);
+//				double start = phase*(2*Math.PI)/numSides;
+//				for (int i = 0; i<numSides; ++i)	{
+//					double angle = start + i * 2.0*Math.PI/numSides;
+//					double[] cuttingPlane = {Math.cos(angle), Math.sin(angle),0,-cut};
+//					we.cutWithPlane(cuttingPlane);
+//				}
+//				we.update();
+//				thickDisk = we;
+//			} 
 		}
 		protected void updateColors() {
 			Color tmp = AnimationUtility.linearInterpolation( Color.white,color, saturated);
@@ -433,6 +453,15 @@ public class FanSolid extends Assignment {
 			});
 			panel.add(phaseSlider);
 			
+			cutSlider = new TextSlider.Double("chop dist",SwingConstants.HORIZONTAL,0,2.0, cut);
+			cutSlider.addActionListener(new ActionListener()	{
+				public void actionPerformed(ActionEvent e)	{
+					cut = cutSlider.getValue().doubleValue();
+					updateGeometry();
+				}
+			});
+			panel.add(cutSlider);
+			
 			numSlider = new TextSlider.Integer("num sides",SwingConstants.HORIZONTAL,0, 100, 6);
 			numSlider.addActionListener(new ActionListener()	{
 				public void actionPerformed(ActionEvent e)	{
@@ -525,8 +554,42 @@ public class FanSolid extends Assignment {
 		sixDisks[3].setPhase(fiveSideHouse ? 0.5 : 0.0);
 	}
 	
+	public static IndexedFaceSet truncatedAnnulus(int order, double offset, double r, double t) {
+		if (t <= 0 || t >= 1) return Primitives.regularAnnulus(order, offset, r);
+		QuadMeshFactory qmf = new QuadMeshFactory();
+		double[][] untruncated = new double[order][];
+		double[][][] allverts = new double[2][2*order+1][3];
+		double start = offset*(2*Math.PI)/order;
+		for (int  i =0; i<order; ++i)	{
+			double angle = start+i * 2.0*Math.PI/order;
+			untruncated[i] = new double[]{Math.cos(angle), Math.sin(angle), 0.0};
+		}
+		// scale inner profile,  no truncation
+		// truncate outer profile, no scaling
+		for (int  i =0; i<order; ++i)	{
+			allverts[1][2*i] = Rn.times(null, r, untruncated[i%order]);
+			allverts[1][2*i+1] = Rn.times(null, r, untruncated[(i+1)%order]);
+			allverts[1][2*i] = AnimationUtility.linearInterpolation(null, 1-t, 0, 1, allverts[1][2*i], allverts[1][2*i+1]);
+			allverts[1][2*i+1] = AnimationUtility.linearInterpolation(null, t, 0, 1, allverts[1][2*i], allverts[1][2*i+1]);
+			
+			allverts[0][2*i] = AnimationUtility.linearInterpolation(null, 1-t, 0, 1, untruncated[i], untruncated[(i+1)%order]);
+			allverts[0][2*i+1] = AnimationUtility.linearInterpolation(null, t, 0, 1, untruncated[i], untruncated[(i+1)%order]);
+		}
+		allverts[0][2*order] = allverts[0][0];
+		allverts[1][2*order] = allverts[1][0];
+		qmf.setULineCount(2*order+1);
+		qmf.setVLineCount(2);
+		qmf.setVertexCoordinates(allverts);
+		qmf.setClosedInUDirection(true);
+		qmf.setClosedInVDirection(false);
+		qmf.setGenerateEdgesFromFaces(true);
+		qmf.setGenerateFaceNormals(true);
+		qmf.update();
+		return qmf.getIndexedFaceSet();
+	}
+
 	public static void main(String[] args) {
-		new FanSolid().display();
+		new KemperSolids().display();
 	}
 //	int currentPlane = 0, currentPhase = 0;
 //	boolean fiveSided = true;

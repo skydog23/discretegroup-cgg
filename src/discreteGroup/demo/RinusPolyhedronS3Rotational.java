@@ -9,7 +9,7 @@ import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.SwingConstants;
 
-import charlesgunn.jreality.newtools.FlyTool;
+import charlesgunn.jreality.newtools.FlyTool2;
 import charlesgunn.jreality.plugin.TermesSpherePlugin;
 import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.math.p5.PlueckerLineGeometry;
@@ -49,7 +49,6 @@ public class RinusPolyhedronS3Rotational extends Assignment {
 			numBands = 5;
 	IndexedFaceSetFactory triFact;
 
-	Viewer viewer;
 	int metric = Pn.ELLIPTIC;
 	double[][] falloffs =   {{1.5,.25,0},{.5,.5,0},{.5, .5, 0}};
 	double[][] cameraClips = {{.001,2},{.01, 1000},{.01,-.05}};
@@ -441,7 +440,7 @@ public class RinusPolyhedronS3Rotational extends Assignment {
 	}
 
 	public void setupMetric()	{
-		FlyTool flytool = new FlyTool();
+		FlyTool2 flytool = new FlyTool2();
 		flytool.setGain(.1);
 		CameraUtility.getCameraNode(viewer).addTool(flytool);
 		Camera cam = CameraUtility.getCamera(jrviewer.getViewer());

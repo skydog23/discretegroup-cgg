@@ -14,6 +14,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JMenuBar;
 import javax.swing.SwingConstants;
 
+import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.jreality.viewer.LoadableScene;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.FrameFieldType;
@@ -35,13 +36,13 @@ import de.jtem.discretegroup.core.DiscreteGroupElement;
 import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
 import de.jtem.discretegroup.core.DiscreteGroupUtility;
 
-public class SixHundredCell extends LoadableScene {
+public class SixHundredCell extends Assignment {
 
 	private SceneGraphComponent cube;
 	double scale = .9;
 	private SceneGraphComponent bothcubes, theSGRepn;
 	@Override
-	public SceneGraphComponent makeWorld() {
+	public SceneGraphComponent getContent() {
 		SceneGraphComponent world = SceneGraphUtility.createFullSceneGraphComponent("world");
 		SceneGraphComponent cubefaces = SceneGraphUtility.createFullSceneGraphComponent("cubefaces");
 		cube = SceneGraphUtility.createFullSceneGraphComponent("cube");
@@ -113,22 +114,8 @@ public class SixHundredCell extends LoadableScene {
 	}
 
 	@Override
-	public boolean isEncompass() {
-		return false;
-	}
-
-	@Override
-	public int getMetric() {
-		return Pn.ELLIPTIC;
-	}
-	@Override
-	public void customize(JMenuBar menuBar, Viewer viewer) {
-		CameraUtility.getCamera(viewer).setFieldOfView(110.0);
-		
-	}
-	public boolean hasInspector() {return true; }
-	public Component getInspector(final Viewer viewer) {	
-		Box inspectionPanel =  Box.createVerticalBox();
+	public Component getInspector() {	
+		Box inspectionPanel =  inspector;
 		Box animateBox =  Box.createHorizontalBox();
 		String[] labels = {"1","-x","+x","-y","+y","-z","+z","-1"};
 		final int[] offsets = {0,5,1,6,2,7,3,4};
@@ -157,6 +144,19 @@ public class SixHundredCell extends LoadableScene {
 		});
 		inspectionPanel.add(timeSlider);
 		return inspectionPanel;
+	}
+
+
+	@Override
+	public void display() {
+		// TODO Auto-generated method stub
+		super.display();
+		CameraUtility.getCamera(viewer).setFieldOfView(110.0);
+		viewer.getSceneRoot().getAppearance().setAttribute(CommonAttributes.METRIC, Pn.ELLIPTIC);
+	}
+	
+	public static void main(String[] args) {
+		new SixHundredCell().display();
 	}
 	
 }

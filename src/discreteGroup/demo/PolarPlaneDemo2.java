@@ -19,14 +19,14 @@ import de.jreality.scene.IndexedLineSet;
 import de.jreality.scene.SceneGraphComponent;
 import de.jreality.shader.CommonAttributes;
 import de.jreality.util.SceneGraphUtility;
-import discreteGroup.demo.FanSolid.Disk;
+import discreteGroup.demo.KemperSolids.Disk;
 
 public class PolarPlaneDemo2 extends LoadableScene {
 
 	@Override
 	public SceneGraphComponent makeWorld() {
 		final SceneGraphComponent world = SceneGraphUtility.createFullSceneGraphComponent("world");
-		Disk theDisk = new FanSolid().new Disk();
+		Disk theDisk = new KemperSolids().new Disk();
 		theDisk.setHoleSize(0.0);
 		theDisk.setColor( Color.cyan);
 		theDisk.setSaturated(1.0);

@@ -9,7 +9,7 @@ import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.SwingConstants;
 
-import charlesgunn.jreality.newtools.FlyTool;
+import charlesgunn.jreality.newtools.FlyTool2;
 import charlesgunn.jreality.plugin.TermesSpherePlugin;
 import charlesgunn.jreality.tools.RotateShapeTool;
 import charlesgunn.jreality.tools.TranslateShapeTool;
@@ -375,7 +375,7 @@ public class RinusPolyhedronS3Screw extends Assignment {
 	}
 
 	public void setupMetric()	{
-		FlyTool flytool = new FlyTool();
+		FlyTool2 flytool = new FlyTool2();
 		flytool.setGain(.1);
 		CameraUtility.getCameraNode(viewer).addTool(flytool);
 		SceneGraphUtility.removeLights(viewer);

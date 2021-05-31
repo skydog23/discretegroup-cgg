@@ -70,7 +70,7 @@ import charlesgunn.jreality.geometry.GeometryUtilityOverflow;
 import charlesgunn.jreality.geometry.OneArmedTinManFactory;
 import charlesgunn.jreality.geometry.SnakeFactory;
 import charlesgunn.jreality.newtools.AllroundTool;
-import charlesgunn.jreality.newtools.FlyTool;
+import charlesgunn.jreality.newtools.FlyTool2;
 import charlesgunn.jreality.texture.RopeTextureFactory;
 import charlesgunn.jreality.texture.SimpleTextureFactory;
 import charlesgunn.jreality.tools.MotionManager;
@@ -177,7 +177,7 @@ public class Maniview {
 	DiscreteGroup theGroup;
 	IndexedFaceSet standardFundDomain, scaledFundDomain;
 	Viewer viewer;
-	FlyTool flyTool;
+	FlyTool2 flyTool;
 	SceneGraphPath pathToWorld;
 	TinManTool tmt;
 	OneArmedTinManFactory tinmanfactory;
@@ -1081,7 +1081,7 @@ public class Maniview {
 		p.push(avatarNode);
 		p.push(cameraNode);
 		p.push(c);
-		flyTool = new FlyTool();
+		flyTool = new FlyTool2();
 		flyTool.setGain(flySpeed);
 		flyTool.addChangeListener(new ActionListener() {
 
