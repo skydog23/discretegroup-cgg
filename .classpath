@@ -6,6 +6,7 @@
 	<classpathentry kind="src" path="src/discreteGroup/tensegrity"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/lib/anim.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/jrworkspace"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/filedrop.jar"/>
 	<classpathentry kind="lib" path="lib/java2d.jar"/>
@@ -14,12 +15,11 @@
 	<classpathentry kind="lib" path="lib/PuncturedTorusHelp.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ProjectiveGeometry"/>
 	<classpathentry kind="lib" path="/lib/dragonfly.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jreality"/>
 	<classpathentry kind="lib" path="/jreality/lib/antlr-3.4-complete.jar"/>
 	<classpathentry kind="lib" path="/jreality/lib/beans.jar"/>
 	<classpathentry kind="lib" path="/jreality/lib/xpp3_min-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="/jreality/lib/xstream-1.4.7.jar"/>
 	<classpathentry kind="lib" path="/jreality/lib/jogamp/jogl-all.jar"/>
-	<classpathentry kind="lib" path="/jreality/lib/jrworkspace.jar" sourcepath="/jrworkspace"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/jreality"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

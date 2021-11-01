@@ -2,14 +2,19 @@ package discreteGroup.demo;
 
 import java.awt.Color;
 
+import charlesgunn.jreality.newtools.FlyTool;
+import charlesgunn.jreality.newtools.RotateTool;
 import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.jreality.viewer.LoadableScene;
 import charlesgunn.jreality.viewer.PluginSceneLoader;
+import de.jreality.geometry.GeometryUtility;
 import de.jreality.geometry.PointSetFactory;
 import de.jreality.math.MatrixBuilder;
 import de.jreality.math.P3;
 import de.jreality.math.Pn;
 import de.jreality.math.Rn;
+import de.jreality.scene.Appearance;
+import de.jreality.scene.Camera;
 import de.jreality.scene.IndexedFaceSet;
 import de.jreality.scene.SceneGraphComponent;
 import de.jreality.scene.SceneGraphNode;
@@ -20,6 +25,8 @@ import de.jreality.scene.tool.InputSlot;
 import de.jreality.scene.tool.Tool;
 import de.jreality.scene.tool.ToolContext;
 import de.jreality.shader.CommonAttributes;
+import de.jreality.util.CameraUtility;
+import de.jreality.util.Rectangle3D;
 import de.jreality.util.SceneGraphUtility;
 import de.jtem.discretegroup.core.DiscreteGroup;
 import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
@@ -52,11 +59,17 @@ public class TetrahedraTower extends Assignment {
 		psf.update();
 		pointsSGC = SceneGraphUtility.createFullSceneGraphComponent("pts");
 		SceneGraphComponent world = SceneGraphUtility.createFullSceneGraphComponent("world");
+		SceneGraphComponent universe = SceneGraphUtility.createFullSceneGraphComponent("world");
 		world.setGeometry(tetrahedron);
+		Appearance ap = world.getAppearance();
+		ap.setAttribute(CommonAttributes.TUBES_DRAW, false);
+		ap.setAttribute("lineShader.lineWidth", 2.0);
 //		world.addChild(pointsSGC);
 		pointsSGC.setGeometry(psf.getPointSet());
 		pointsSGC.getAppearance().setAttribute(CommonAttributes.VERTEX_DRAW, true);
 		world.getAppearance().setAttribute("metric", Pn.ELLIPTIC);
+		world.getAppearance().setAttribute("useGLSL", true);
+		world.getAppearance().setAttribute(CommonAttributes.SMOOTH_SHADING, false);
 		
 		Tool flipper = new AbstractTool(InputSlot.LEFT_BUTTON, InputSlot.SHIFT_LEFT_BUTTON) {
 			boolean activated = false;
@@ -110,12 +123,28 @@ public class TetrahedraTower extends Assignment {
 				MatrixBuilder.elliptic().reflect(planes[whichFace]).assignTo(copySGC);				
 			}
 		};
-		world.addTool(flipper);
+//		world.addTool(flipper);
 		DiscreteGroup dg = Spherical3DGroup.towerOfTetrahedra(); //instanceOf("335");
 		DiscreteGroupSceneGraphRepresentation dgsgr = new DiscreteGroupSceneGraphRepresentation(dg);
 		dgsgr.setWorldNode(world);
 		dgsgr.update();
-		return dgsgr.getRepresentationRoot(); //world; //
+		universe.addChild(dgsgr.getRepresentationRoot());
+		RotateTool rt = new RotateTool();
+		universe.getAppearance().setAttribute(GeometryUtility.BOUNDING_BOX, Rectangle3D.EMPTY_BOX);
+		universe.addTool(rt);
+		MatrixBuilder.elliptic().translate(0, 0, -1);
+		return universe;
+	}
+	@Override
+	public void display() {
+		// TODO Auto-generated method stub
+		super.display();
+		FlyTool flytool = new FlyTool();
+		flytool.setGain(.1);
+		CameraUtility.getCameraNode(viewer).addTool(flytool);
+		Camera cam = CameraUtility.getCamera( viewer);
+		cam.setFar(-.1);
+		viewer.getSceneRoot().getAppearance().setAttribute(CommonAttributes.BACKGROUND_COLOR, new Color(80,80,80));
 	}
 	/*
 	 * Construct a spherical tetrahedron with dihedral angles with a given dihedral angle.

@@ -121,7 +121,7 @@ public class SixHundredCell extends Assignment {
 		final int[] offsets = {0,5,1,6,2,7,3,4};
 		for (int i = 0; i<8; ++i)	{
 			JCheckBox animate = new JCheckBox(labels[i]);
-			animate.setSelected(theSGRepn.getChildComponent(offsets[i]).isVisible());
+			//animate.setSelected(theSGRepn.getChildComponent(offsets[i]).isVisible());
 			final int j = i;
 			animate.addActionListener( new ActionListener()	{
 				public void actionPerformed(ActionEvent e)	{

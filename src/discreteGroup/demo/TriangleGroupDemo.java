@@ -36,7 +36,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
-import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -46,15 +45,14 @@ import javax.swing.Timer;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import net.iharder.dnd.FileDrop;
+import charlesgunn.anim.plugin.AnimationPlugin;
+import charlesgunn.jreality.newtools.RotateTool;
+import charlesgunn.jreality.plugin.TermesSpherePlugin;
 import charlesgunn.jreality.texture.SimpleTextureFactory;
 import charlesgunn.jreality.texture.SimpleTextureFactory.TextureType;
 import charlesgunn.jreality.tools.RotateShapeTool;
 import charlesgunn.jreality.tools.TranslateShapeTool;
 import charlesgunn.jreality.viewer.Assignment;
-import charlesgunn.jreality.viewer.LoadableScene;
-import charlesgunn.jreality.viewer.PluginSceneLoader;
-import charlesgunn.jreality.worlds.FundamentalTetrahedron;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.GeometryUtility;
 import de.jreality.geometry.IndexedFaceSetUtility;
@@ -67,9 +65,16 @@ import de.jreality.math.MatrixBuilder;
 import de.jreality.math.P3;
 import de.jreality.math.Pn;
 import de.jreality.math.Rn;
+import de.jreality.plugin.JRViewer;
+import de.jreality.plugin.basic.Shell;
+import de.jreality.plugin.basic.ViewPreferences;
+import de.jreality.plugin.content.ContentLoader;
+import de.jreality.plugin.content.ContentTools;
+import de.jreality.plugin.experimental.ViewerKeyListenerPlugin;
 import de.jreality.plugin.scene.Sky;
 import de.jreality.reader.Readers;
 import de.jreality.scene.Appearance;
+import de.jreality.scene.Geometry;
 import de.jreality.scene.IndexedFaceSet;
 import de.jreality.scene.PointSet;
 import de.jreality.scene.Scene;
@@ -101,8 +106,10 @@ import de.jtem.discretegroup.core.DiscreteGroupSimpleConstraint;
 import de.jtem.discretegroup.core.DiscreteGroupUtility;
 import de.jtem.discretegroup.core.DiscreteGroupViewportConstraint;
 import de.jtem.discretegroup.groups.TriangleGroup;
+import de.jtem.discretegroup.util.TranslateTool;
 import de.jtem.jrworkspace.plugin.Plugin;
 import discreteGroup.ResourceClass;
+import net.iharder.dnd.FileDrop;
 
 
 public class TriangleGroupDemo extends Assignment {
@@ -129,7 +136,10 @@ public class TriangleGroupDemo extends Assignment {
 	double invisiblePointRadius = .1,
 		blendFactor = 1,
 		scale = 1.0;
-	boolean showPoincare = false,
+	boolean testAzimuth = true,
+		showPoincare = false,
+		doAzimuth = false,
+		dragCenter = false,
 		flattenDGSGR = false,
 		showOneCopy = false,
 		draggingCenter = false,
@@ -173,7 +183,7 @@ public class TriangleGroupDemo extends Assignment {
 //		myroot.getAppearance().setAttribute(CommonAttributes.DEPTH_FUDGE_FACTOR, .9995);
 		myroot.getAppearance().setAttribute(CommonAttributes.EDGE_DRAW, false);
 		theWorldsChild = SceneGraphUtility.createFullSceneGraphComponent("theWorldsChild");
-		theWorld.addChild(theWorldsChild);	
+//		theWorld.addChild(theWorldsChild);	
 //		theWorld.addTool(new PickShowTool());
 		
 		hyperbolicBoundary = SceneGraphUtility.createFullSceneGraphComponent("boundary");
@@ -199,9 +209,41 @@ public class TriangleGroupDemo extends Assignment {
 		tex2d.setApplyMode(Texture2D.GL_REPLACE);
 		tex2d.setBlendColor(new Color(0f,0f,0f,0f));
 
-		myroot.addChildren(theWorld,hyperbolicBoundary,diskHolder2);
+		myroot.addChildren(theWorld,hyperbolicBoundary);
+		if (!testAzimuth) myroot.addChild(diskHolder2);
 		
-//		dragTool.addChild(diskHolder);
+		if (testAzimuth) 	{
+			SceneGraphComponent patternSGC = SceneGraphUtility.createFullSceneGraphComponent("pattern");
+			Appearance ap = patternSGC.getAppearance();
+			ap.setAttribute(CommonAttributes.EDGE_DRAW, true);
+			ap.setAttribute(CommonAttributes.TUBES_DRAW, true);
+			ap.setAttribute(CommonAttributes.VERTEX_DRAW, true);
+			ap.setAttribute(CommonAttributes.SPHERES_DRAW, true);
+			SceneGraphComponent[] copies = new SceneGraphComponent[6];
+			Geometry circle  = IndexedLineSetUtility.circle(100);
+			for (int i = 0; i<4; ++i)	{
+				copies[i] = new SceneGraphComponent();
+				patternSGC.addChild(copies[i]);
+				copies[i].setGeometry(circle);
+				MatrixBuilder.euclidean().rotateX(i*Math.PI/4).assignTo(copies[i]);
+			}
+			for (int i = 0; i<2; ++i)	{
+				copies[i+4] = new SceneGraphComponent();
+				patternSGC.addChild(copies[i+4]);
+				copies[i+4].setGeometry(circle);
+				MatrixBuilder.euclidean().rotateZ((i+1)*Math.PI/4).rotateX(Math.PI/2).assignTo(copies[i+4]);
+			}
+			theWorldsChild.addChild(patternSGC);
+			double[] m = {
+					1,0,0,0,
+					0,1,0,0,
+					0,0,0,1,
+					0,0,1,0
+			};
+			//new Matrix(m).assignTo(patternSGC);
+			patternSGC.setVisible(false);
+		}
+		
 		dragToolSGC = SceneGraphUtility.createFullSceneGraphComponent("drag tool");
 		dragToolSGC.getAppearance().setAttribute(VERTEX_DRAW, true);
 		dragToolSGC.getAppearance().setAttribute(SPHERES_DRAW, true);
@@ -231,7 +273,8 @@ public class TriangleGroupDemo extends Assignment {
 		polarPlaneSGC = SceneGraphUtility.createFullSceneGraphComponent("polarPlane");	
 		PickUtility.setPickable(quadkitHolder, false, false, true);
 		polarPlaneSGC.setPickable(false);
-		quadkit.addChildren(dragToolSGC, quadkitHolder, polarPlaneSGC);
+//		quadkit.addChildren(dragToolSGC, quadkitHolder, polarPlaneSGC);
+		quadkit.addChildren( quadkitHolder, polarPlaneSGC);
 //		for (int i = 0; i<3; ++i)	{
 //			app = threeChildren[i].getAppearance();
 //		  			id = images[i];//ImageData.load(Input.getInput(texture)); //"grid256rgba.png")); //weaveRGBABright.png"));
@@ -244,7 +287,7 @@ public class TriangleGroupDemo extends Assignment {
 //		}
 //	   
 		dragCenterTool = new DragCenterTool();
-		theWorld.addTool(dragCenterTool);
+//		theWorld.addTool(dragCenterTool);
 		translateTool = new TranslateShapeTool() {
 
 			@Override
@@ -255,7 +298,17 @@ public class TriangleGroupDemo extends Assignment {
 				} 
 				else System.err.println("Activating translate");
 			}
-			
+
+			@Override
+			public void deactivate(ToolContext tc) {
+				// TODO Auto-generated method stub
+				super.deactivate(tc);
+				if (metric == Pn.EUCLIDEAN) {
+					groupNeedsUpdated = true;
+				}	
+			}
+
+
 		};
 		theWorld.addTool(translateTool);
 		
@@ -358,6 +411,7 @@ public class TriangleGroupDemo extends Assignment {
 				updateFaceColors();
 //				System.err.println("Updating quadkit"+quads.getNumFaces());
 				double[][] verts = quads.getVertexAttributes(Attribute.COORDINATES).toDoubleArrayArray(null);
+				System.err.println("quad verts = \n"+Rn.toString(verts));
 				fundamentalTriangleVerts = new double[][] {verts[1], verts[2], verts[3]};
 				if (!separateQuads && quadkitHolder.getGeometry() != quads) {
 //					updateFaceColors();
@@ -373,12 +427,14 @@ public class TriangleGroupDemo extends Assignment {
 						threeChildren[i].setGeometry(face[i]);
 					}			
 				}
-				if (projectOntoSphere) {
+				if (projectOntoSphere ) { //|| testAzimuth) {
 					IndexedFaceSet ifs = IndexedFaceSetUtility.constructPolygon(fundamentalTriangleVerts);
 					IndexedFaceSetUtility.calculateAndSetEdgesFromFaces(ifs);
-					if (theGroup.getDimension() == 3) {
+					if (testAzimuth || theGroup.getDimension() == 3) {
 						for (int i = 0; i<4; ++i)
 							ifs = IndexedFaceSetUtility.binaryRefine(ifs);
+					} 
+					if (projectOntoSphere && theGroup.getDimension() == 3) {
 						verts = ifs.getVertexAttributes(Attribute.COORDINATES).toDoubleArrayArray(null);
 						int vlength = GeometryUtility.getVectorLength(ifs);
 						Pn.setToLength(verts, verts, 1.0, Pn.EUCLIDEAN);
@@ -390,7 +446,8 @@ public class TriangleGroupDemo extends Assignment {
 						ifs.setVertexAttributes(Attribute.COORDINATES, StorageModel.DOUBLE_ARRAY.array(vlength).createReadOnly(verts));
 						IndexedFaceSetUtility.calculateAndSetNormals(ifs);
 				}
-				quadkit.setGeometry(ifs);
+				//quadkit.setGeometry(ifs);
+				quadkitHolder.setGeometry(ifs);
 				}
 			}
 		});
@@ -430,6 +487,7 @@ public class TriangleGroupDemo extends Assignment {
 		int metric = theGroup.getMetric();
 		spherecb.setVisible(metric == Pn.ELLIPTIC || (!theGroup.getName().startsWith("22") && (metric == Pn.EUCLIDEAN && theGroup.getDimension() == 3)));
 		poincarecb.setVisible(metric == Pn.HYPERBOLIC);
+		azimuthcb.setVisible(metric != Pn.EUCLIDEAN);
 		flattencb.setVisible(metric == Pn.HYPERBOLIC);
 		if (metric != Pn.HYPERBOLIC) {
 			flattenDGSGR = false;
@@ -483,7 +541,8 @@ public class TriangleGroupDemo extends Assignment {
 
 		DGRepn =  sgr.getRepresentationRoot();
 		theWorld.addChild(DGRepn);
-		updateDGAppearance();
+		DGRepn.addChild(theWorldsChild);
+//		updateDGAppearance();
 		
 		if (theGroup.getDimension()  == 3)	{
 			CameraUtility.getCamera(viewer).setPerspective( true); 
@@ -495,6 +554,7 @@ public class TriangleGroupDemo extends Assignment {
 			myroot.getAppearance().setAttribute(LIGHTING_ENABLED, false);
 			charlesgunn.jreality.tools.ToolManager.toolManagerForViewer(viewer).activateTool(charlesgunn.jreality.tools.ToolManager.TRANSLATION_TOOL);
 			if (theGroup.getMetric() == Pn.HYPERBOLIC) 	{
+				MatrixBuilder.euclidean().translate(0,0,1).assignTo(CameraUtility.getCameraNode(viewer));
 				CameraUtility.getCamera(viewer).setFocus(2.0); 
 			} else {
 				MatrixBuilder.euclidean().translate(0,0,1).assignTo(CameraUtility.getCameraNode(viewer));
@@ -510,10 +570,13 @@ public class TriangleGroupDemo extends Assignment {
 		ap.setAttribute("singlePeer", singlePeer);
 		boolean value = theGroup.getMetric() == Pn.HYPERBOLIC && showPoincare;
 		ap.setAttribute(NoneuclideanGLSLShader.POINCARE_MODEL, value);
+		value = theGroup.getMetric() != Pn.EUCLIDEAN && doAzimuth;
+		ap.setAttribute(NoneuclideanGLSLShader.AZIMUTH_PROJECTION, value);
 //		ap.setAttribute("stereographicProjection", value);
 		ap.setAttribute("useGLSL", theGroup.getMetric() != Pn.EUCLIDEAN);
 		ap.setAttribute("oneGLSL", theGroup.getMetric() != Pn.EUCLIDEAN);
 //		ap.setAttribute(CommonAttributes.DEPTH_FUDGE_FACTOR, .995);
+		ap.setAttribute(CommonAttributes.POLYGON_SHADER, "glsl");
 		ap.setAttribute(CommonAttributes.ANY_DISPLAY_LISTS, anyDisplayLists);
 		List l = SceneGraphUtility.getPathsBetween(viewer.getSceneRoot(), myroot);
 		if (l.size() == 0) return;
@@ -578,8 +641,8 @@ public class TriangleGroupDemo extends Assignment {
 		@Override
 		public void perform(ToolContext tc) {
 			PickResult pick = tc.getCurrentPick();
-			if (pick == null) return;
-			boolean pointPicked = pick.getPickPath().contains(thePoint),
+			if (pick == null || doAzimuth) return;
+			boolean pointPicked = pick.getPickPath().contains(thePoint) && !doAzimuth,
 				diskPicked = pick.getPickPath().contains(bullsEyeSGC),
 				dragging = tc.getAxisState(leftButton).isPressed();
 			rootToPick = pick.getPickPath();
@@ -624,11 +687,20 @@ public class TriangleGroupDemo extends Assignment {
 	@Override
 	public List<Plugin> getPluginsToRegister() {
 		// TODO Auto-generated method stub
-		 super.getPluginsToRegister();
+		pluginsToLoad.add(new Shell());
+		pluginsToLoad.add(contentPlugin);
+		pluginsToLoad.add(new ContentTools());
+		pluginsToLoad.add(new ContentLoader());
+		pluginsToLoad.add(new ViewPreferences());
+		animationPlugin = new AnimationPlugin();
+		pluginsToLoad.add(animationPlugin);
+		pluginsToLoad.add(new ViewerKeyListenerPlugin());
+		pluginsToLoad.add(shrinkPanelPlugin);
+//		pluginsToLoad.add(new TermesSpherePlugin());
 			sky = new Sky();
 			pluginsToLoad.add(sky);
 //		sky.setEnvironment("Grace Cross");
-		sky.setShowSky(true);
+//		sky.setShowSky(true);
 		return pluginsToLoad;
 //		psl.getVRPanel().setShowPanel(true);
 //		psl.getJRViewer().registerPlugin(sky);
@@ -660,7 +732,8 @@ public class TriangleGroupDemo extends Assignment {
 		backgroundArray[1] = ULBackground;// bg[1];
 		backgroundArray[2] = LLBackground;
 		backgroundArray[3] = LRBackground;  //bg[2];
-		viewer.getSceneRoot().getAppearance().setAttribute("backgroundColors", backgroundArray);
+//		viewer.getSceneRoot().getAppearance().setAttribute("backgroundColors", backgroundArray);
+		viewer.getSceneRoot().getAppearance().setAttribute("backgroundColor", new Color(170,170,170));
 		viewer.getSceneRoot().getAppearance().setAttribute("polygonShader.reflectionMap:blendColor",
 				new Color(1f, 1f, 1f, (float) .3));
 		CameraUtility.getCamera(viewer).setFar(50.0);
@@ -700,6 +773,10 @@ public class TriangleGroupDemo extends Assignment {
 					activate(which);
 					break;
 
+				case KeyEvent.VK_2:
+					DefaultMatrixSupport.getSharedInstance().restoreDefaultMatrices(viewer.getSceneRoot(), false);
+					break;
+
 //				case KeyEvent.VK_2:
 //					convertToProj = !convertToProj;
 //					replaceGroup(currentName);
@@ -710,13 +787,20 @@ public class TriangleGroupDemo extends Assignment {
 			
 		});
 
-		viewer.getSceneRoot().getAppearance().setAttribute(CommonAttributes.BACKGROUND_COLOR, new Color(10,10,200,0));
-		charlesgunn.jreality.tools.ToolManager.toolManagerForViewer(viewer).setActive(false); //activateTool(charlesgunn.jreality.tools.ToolManager.TRANSLATION_TOOL);//
-		charlesgunn.jreality.tools.ToolManager.toolManagerForViewer(viewer).getToolbar().setVisible(false);
+//		viewer.getSceneRoot().getAppearance().setAttribute(CommonAttributes.BACKGROUND_COLOR, new Color(10,10,200,0));
+//		charlesgunn.jreality.tools.ToolManager.toolManagerForViewer(viewer).setActive(false); //activateTool(charlesgunn.jreality.tools.ToolManager.TRANSLATION_TOOL);//
+//		charlesgunn.jreality.tools.ToolManager.toolManagerForViewer(viewer).getToolbar().setVisible(false);
 //		if (psl == null) 
 			replaceGroup(currentName);
 		
 		
+	}
+
+
+	@Override
+	public void setupJRViewer(JRViewer v) {
+		// TODO Auto-generated method stub
+		super.setupJRViewer(v);
 	}
 
 	static String[][] names = {
@@ -728,11 +812,11 @@ public class TriangleGroupDemo extends Assignment {
 		{"*226","226","*228","228"}};
 	@Override
 	public Component getInspector() {
-		JPanel panel = new JPanel();
-		panel.setName("Triangle group");
+//		JPanel panel = new JPanel();
+		inspector.setName("Triangle group");
 		ButtonGroup bg = new ButtonGroup();
 		Box container = Box.createVerticalBox();
-		panel.add(container);
+		inspector.add(container);
 		Box vbox = Box.createVerticalBox();
 		vbox.setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5),
 				BorderFactory.createTitledBorder(BorderFactory
@@ -803,6 +887,21 @@ public class TriangleGroupDemo extends Assignment {
 		hbox.add(Box.createHorizontalGlue());
 		hbox.add(poincarecb);
 		hbox.add(Box.createHorizontalGlue());
+		
+		azimuthcb = new JCheckBox("azimuth proj");
+		azimuthcb.setSelected(doAzimuth);
+		azimuthcb.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				doAzimuth = ((JCheckBox)e.getSource()).isSelected();
+				updateDGAppearance();
+			}
+			
+		});
+		hbox.add(Box.createHorizontalGlue());
+		hbox.add(azimuthcb);
+		hbox.add(Box.createHorizontalGlue());
+		
 		flattencb = new JCheckBox("flatten");
 		flattencb.setSelected(flattenDGSGR);
 		flattencb.addActionListener(new ActionListener() {
@@ -911,7 +1010,6 @@ public class TriangleGroupDemo extends Assignment {
 		});
 //		hbox.add(bSlider);
 		vbox.add(hbox);
-		inspector.add(panel);
 		return inspector;
 	}
 		protected Image getScaledImage(Image srcImg, int w, int h){
@@ -932,7 +1030,7 @@ public class TriangleGroupDemo extends Assignment {
 	private static JOGLFBOViewer fboViewer;
 	private static TriangleGroupDemo tgd;
 	private Sky sky;
-	private JCheckBox poincarecb;
+	private JCheckBox poincarecb, azimuthcb;
 	private JCheckBox flattencb;
 	private JCheckBox spherecb;
 	void activate(int which)	{
