@@ -7,6 +7,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.JMenuBar;
 
 import charlesgunn.jreality.geometry.BezierTrianglePatchFactory;
+import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.jreality.viewer.LoadableScene;
 import de.jreality.geometry.ParametricTriangularSurfaceFactory;
 import de.jreality.math.Pn;
@@ -25,12 +26,14 @@ import de.jtem.discretegroup.groups.TriangleGroup;
  * @author Charles Gunn
  *
  */
-public class RationalQuadraticBezierTriangleDemo extends LoadableScene {
+public class RationalQuadraticBezierTriangleDemo extends Assignment {
 	int subdivision = 8;
 	private ParametricTriangularSurfaceFactory ptsf;
 	private BezierTrianglePatchFactory btpf;
 	private double homogeneousFactor;
-	public SceneGraphComponent makeWorld() {
+	
+	@Override
+	public SceneGraphComponent getContent() {
 		SceneGraphComponent root = SceneGraphUtility.createFullSceneGraphComponent("theWorld");
 		Appearance ap1 = root.getAppearance();
 		ap1.setAttribute(CommonAttributes.FACE_DRAW, true);
@@ -80,7 +83,8 @@ public class RationalQuadraticBezierTriangleDemo extends LoadableScene {
 	}
 
 	@Override
-	public void customize(JMenuBar menuBar, Viewer viewer) {
+	public void display() {
+		super.display();
 		((Component) viewer.getViewingComponent()).addKeyListener( new KeyAdapter() {
 
 			@Override
@@ -108,5 +112,8 @@ public class RationalQuadraticBezierTriangleDemo extends LoadableScene {
 		});
 	}
 	
+	public static void main(String[] args) {
+		new RationalQuadraticBezierTriangleDemo().display();
+	}
 }
 

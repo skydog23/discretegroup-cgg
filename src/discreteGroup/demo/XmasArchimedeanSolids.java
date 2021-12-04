@@ -236,6 +236,7 @@ public class XmasArchimedeanSolids extends LoadableScene {
 	
 	Viewer viewer;
 
+	@Override
 	public void customize(JMenuBar theMenuBar, Viewer v) {
 		viewer = v;
 		URL is = ResourceClass.class.getResource("resources/textures/xmasTree-01.png");

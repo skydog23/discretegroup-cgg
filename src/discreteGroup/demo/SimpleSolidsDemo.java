@@ -8,6 +8,7 @@ package discreteGroup.demo;
 import java.awt.Color;
 import java.io.IOException;
 
+import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.jreality.viewer.LoadableScene;
 import de.jreality.reader.Readers;
 import de.jreality.scene.SceneGraphComponent;
@@ -20,21 +21,22 @@ import de.jreality.util.Input;
  * @author gunn
  *
  */
-public class SimpleSolidsDemo extends LoadableScene    {
+public class SimpleSolidsDemo extends Assignment    {
 	SceneGraphComponent theWorld;
 	SceneGraphComponent icokit;
 	public SimpleSolidsDemo() {
 		super();
 	}
 	
-	public SceneGraphComponent makeWorld()	{
+	@Override
+	public SceneGraphComponent getContent()	{
 		theWorld = new SceneGraphComponent();
 		SceneGraphComponent skin = null, bones = null;
 		try {
 			bones  = Readers.read(
-					Input.getInput("/homes/geometer/gunn/Documents/Models/geomview/dodec2.xyzr")); //OBJ/Genus2_stl/Polyhedron_2_10_20332.jvx"));// 
+					Input.getInput("/gunn_local/Models/geomview/dodec2.xyzr")); //OBJ/Genus2_stl/Polyhedron_2_10_20332.jvx"));// 
 			skin  = Readers.read(
-					Input.getInput("/homes/geometer/gunn/Documents/Models/Molecules/dodec.msms")); //OBJ/Genus2_stl/Polyhedron_2_10_20332.jvx"));// 
+					Input.getInput("/gunn_local/Models/Molecules/dodec.msms")); //OBJ/Genus2_stl/Polyhedron_2_10_20332.jvx"));// 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -48,6 +50,8 @@ public class SimpleSolidsDemo extends LoadableScene    {
 		return theWorld;
 	}
 
-	public boolean isEncompass() {return true;}
 
+	public static void main(String[] args) {
+		new SimpleSolidsDemo().display();
+	}
 }

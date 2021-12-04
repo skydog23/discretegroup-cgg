@@ -325,8 +325,8 @@ public class FirTreeDemo extends LoadableScene {
 		noLabelAp.setAttribute(CommonAttributes.POLYGON_SHADER+"."+CommonAttributes.DIFFUSE_COLOR, new Color(0,0,80));
 		MatrixBuilder.euclidean().rotateY(-Math.PI/2).rotateX(-Math.PI/2).assignTo(baseSGC);
 		BufferedImage bi = LabelUtility.createImageFromString(
-				" Matheon Festbaum  ** Done by Gunn / "+
-				"Geometry and Visualization Group / TU Berlin ** Software: www.jreality.de *** ",
+				" Rejoice and be glad "+
+				" For today the savior of the world is born in a manger in Bethlehem! ",
 				new Font("Sans Serif",Font.BOLD,64),Color.white);
 		ImageData id = new ImageData(bi);
 		tex2d2 = (Texture2D) AttributeEntityUtility.createAttributeEntity(
