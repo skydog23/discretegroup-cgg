@@ -8,14 +8,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.Box;
-import javax.swing.JMenuBar;
 import javax.swing.SwingConstants;
 
 import charlesgunn.anim.core.KeyFrameAnimatedBean;
 import charlesgunn.anim.plugin.AnimationPlugin;
 import charlesgunn.jreality.geometry.ClipBox;
-import charlesgunn.jreality.viewer.LoadableScene;
-import charlesgunn.jreality.viewer.PluginSceneLoader;
+import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.IndexedFaceSetFactory;
 import de.jreality.math.MatrixBuilder;
@@ -33,10 +31,28 @@ import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
 import de.jtem.discretegroup.core.DiscreteGroupSimpleConstraint;
 import de.jtem.discretegroup.groups.TriangleGroup;
 
-public class JitterbugTessellation extends LoadableScene {
+public class JitterbugTessellation extends Assignment {
+
+	transient IndexedFaceSetFactory triangleFactory = new IndexedFaceSetFactory(),
+			gapFactory = new IndexedFaceSetFactory(),
+			gapTriFactory = new IndexedFaceSetFactory();
+	transient private DiscreteGroupSceneGraphRepresentation tlateRepn;
+	transient private DiscreteGroupSimpleConstraint simpleConstraint = 
+			new DiscreteGroupSimpleConstraint(10.0, 1, 20);
+
+	transient private DiscreteGroup translationGroup;
+	transient private ClipBox clipbox;
+	transient private SceneGraphComponent triSGC, gapSGC, gapTriSGC;
+	transient TextSlider.Double clipSlider;
+	transient TextSlider.Double timeSlider
+	;
+
+	boolean showGaps = false, showTris = true, showGapTri= false;
+	double time = 0.0,
+			clipSize = 3;
 
 	@Override
-	public SceneGraphComponent makeWorld() {
+	public SceneGraphComponent getContent() {
 		DiscreteGroup pointGroupS222 = TriangleGroup.instanceOfGroup("3*2");
 		DiscreteGroupSceneGraphRepresentation dgsgr = new DiscreteGroupSceneGraphRepresentation(pointGroupS222);
 		triSGC = SceneGraphUtility.createFullSceneGraphComponent("triSGC");
@@ -114,7 +130,6 @@ public class JitterbugTessellation extends LoadableScene {
 			gens[3] = new DiscreteGroupElement( Pn.EUCLIDEAN, MatrixBuilder.euclidean().translate(dir4).getArray(), "w");
 			for (int i = 0; i<4; ++i) gens[i+4] = gens[i].getInverse();
 			translationGroup.setGenerators(gens);
-			simpleConstraint = new DiscreteGroupSimpleConstraint(4.0, 1, 20);
 			simpleConstraint.setManhattan(true);
 			translationGroup.setConstraint(simpleConstraint);
 			
@@ -128,7 +143,7 @@ public class JitterbugTessellation extends LoadableScene {
 			gens[2] = new DiscreteGroupElement( Pn.EUCLIDEAN, MatrixBuilder.euclidean().translate(zplane).getArray(), "z");
 			for (int i = 0; i<3; ++i) gens[i+3] = gens[i].getInverse();
 			translationGroup.setGenerators(gens);			
-			simpleConstraint = new DiscreteGroupSimpleConstraint(3.0, 3, 100);
+			simpleConstraint = new DiscreteGroupSimpleConstraint(10, 10, 100);
 			simpleConstraint.setManhattan(true);
 			translationGroup.setConstraint(simpleConstraint);
 		}
@@ -147,19 +162,23 @@ public class JitterbugTessellation extends LoadableScene {
 				tlateRepn.update();
 			}
 		});
+		simpleConstraint.setManhattan(true);
 		clipbox = new ClipBox();
 		clipbox.setDim(new double[]{clipSize, clipSize, clipSize});
+//		simpleConstraint.setMaxDistance(clipSize+1);
 		tlateRepn.getRepresentationRoot().addChild(clipbox.getBox());
 	
 		return tlateRepn.getRepresentationRoot();
 	}
 
 	@Override
-	public void customize(JMenuBar menuBar, PluginSceneLoader psl) {
-		Viewer viewer = psl.getViewer();
+	public void display() {
+		super.display();
+		Viewer viewer = jrviewer.getViewer();
 		viewer.getSceneRoot().getAppearance().setAttribute("backgroundColor", Color.black);
-		AnimationPlugin ap = psl.getAnimationPlugin();
-		KeyFrameAnimatedBean me = new KeyFrameAnimatedBean(this, getExcludedProperties());
+		AnimationPlugin ap = animationPlugin;
+//		KeyFrameAnimatedBean me = new KeyFrameAnimatedBean(this, getExcludedProperties());
+		KeyFrameAnimatedBean me = new KeyFrameAnimatedBean(this);
 		ap.getAnimated().add(me);
 		Camera c = CameraUtility.getCamera(viewer);
 		KeyFrameAnimatedBean<Camera> ac = new KeyFrameAnimatedBean<Camera>(c);
@@ -177,13 +196,8 @@ public class JitterbugTessellation extends LoadableScene {
 
 
 	@Override
-	public boolean hasInspector() {
-		return true;
-	}
-
-	@Override
-	public Component getInspector(Viewer v) {
-		Box container = Box.createVerticalBox();
+	public Component getInspector() {
+		Box container = inspector;
 		timeSlider = new TextSlider.Double("jitterbug",
 				SwingConstants.HORIZONTAL, 0.0, 1, time);
 		timeSlider.addActionListener(new ActionListener() {
@@ -199,6 +213,7 @@ public class JitterbugTessellation extends LoadableScene {
 			public void actionPerformed(ActionEvent e) {
 				clipSize = clipSlider.getValue();
 				clipbox.setDim(new double[]{clipSize, clipSize, clipSize});
+//				simpleConstraint.setMaxDistance(clipSize+1);
 			}
 		});
 		container.add(clipSlider);
@@ -245,21 +260,6 @@ public class JitterbugTessellation extends LoadableScene {
 				}
 			});
 	}
-	transient IndexedFaceSetFactory triangleFactory = new IndexedFaceSetFactory(),
-				gapFactory = new IndexedFaceSetFactory(),
-				gapTriFactory = new IndexedFaceSetFactory();
-	transient private DiscreteGroupSceneGraphRepresentation tlateRepn;
-	transient private DiscreteGroupSimpleConstraint simpleConstraint;
-	transient private DiscreteGroup translationGroup;
-	transient private ClipBox clipbox;
-	transient private SceneGraphComponent triSGC, gapSGC, gapTriSGC;
-	transient TextSlider.Double clipSlider;
-	transient TextSlider.Double timeSlider
-	;
-
-	boolean showGaps = false, showTris = true, showGapTri= false;
-	double time = 0.0,
-			clipSize = 3;
 	void update(double t)	{
 		double[][] tv = {{t,1,0},{1,0,-t},{(t+1.0)/3.0, (1+t)/3.0, (-1-t)/3.0},{1,0,0},{1,1,0}};  //{0,t,-1},
 		triangleFactory.setVertexCoordinates(new double[][]{tv[0], tv[1], tv[2]});
@@ -316,5 +316,8 @@ public class JitterbugTessellation extends LoadableScene {
 		this.clipSize = clipSize;
 		clipSlider.setValue(clipSize);
 		clipbox.setDim(new double[]{clipSize, clipSize, clipSize});
+	}
+	public static void main(String[] args) {
+		new JitterbugTessellation().display();
 	}
 }
