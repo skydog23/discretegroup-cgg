@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.swing.Box;
@@ -24,15 +25,13 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
-import charlesgunn.jreality.viewer.LoadableScene;
-import charlesgunn.jreality.viewer.PluginSceneLoader;
+import charlesgunn.jreality.viewer.Assignment;
 import de.jreality.geometry.PointSetFactory;
 import de.jreality.geometry.Primitives;
 import de.jreality.math.MatrixBuilder;
 import de.jreality.plugin.scene.Sky;
 import de.jreality.scene.Appearance;
 import de.jreality.scene.SceneGraphComponent;
-import de.jreality.scene.Viewer;
 import de.jreality.scene.data.Attribute;
 import de.jreality.scene.tool.ToolContext;
 import de.jreality.shader.CommonAttributes;
@@ -42,13 +41,14 @@ import de.jreality.util.SceneGraphUtility;
 import de.jtem.discretegroup.core.DiscreteGroupUtility;
 import de.jtem.discretegroup.groups.ArchimedeanSolids;
 import de.jtem.discretegroup.util.WingedEdge;
+import de.jtem.jrworkspace.plugin.Plugin;
 
 
 /**
  * @author gunn
  *
  */
-public class ArchimedeanSolidsDemo  extends LoadableScene {
+public class ArchimedeanSolidsDemo  extends Assignment {
 	public boolean showSolids = true;
 	public boolean showPolars = true;
 	public boolean showPlatonics = false;
@@ -118,7 +118,7 @@ public class ArchimedeanSolidsDemo  extends LoadableScene {
 				new Color(255, 200, 100));
 		pap.setAttribute(CommonAttributes.POINT_SHADER+"."+CommonAttributes.POINT_RADIUS, .015);
 			pap.setAttribute(CommonAttributes.LINE_SHADER+"."+CommonAttributes.TUBE_RADIUS, .01);
-			double foo = .3, bar = .7, boo = .32;
+			double foo = .3, bar = .7, boo = .25;
 		for (int i = 0; i<allArchieNames.length; ++i)	{
 			nameTable.put(allArchieNames[i], new Integer(i));
 			archList[i] = ArchimedeanSolids.archimedeanSolid(allArchieNames[i]);
@@ -146,9 +146,10 @@ public class ArchimedeanSolidsDemo  extends LoadableScene {
 				MatrixBuilder.euclidean().translate(archPositions[i-6]).scale(boo).assignTo(pairsList[i]);
 			}
 			DefaultMatrixSupport.getSharedInstance().storeAsDefault(pairsList[i].getTransformation());
+			int k = 4;
 			if (i<5)  {
 				allPlatoKit.addChild(pairsList[i]);
-				platoLabels[i] = allArchieNames[i];
+				platoLabels[(i+k)%5] = allArchieNames[i];
 			} else  {
 				allArchKit.addChild(pairsList[i]);
 				archLabels[i-5] = allArchieNames[i];
@@ -185,6 +186,7 @@ public class ArchimedeanSolidsDemo  extends LoadableScene {
 		psf.setVertexCount(5);
 		psf.setVertexCoordinates(platoPositions);
 		psf.setVertexLabels(platoLabels);
+		System.err.println("labels = "+platoLabels.toString());
 		psf.update();
 		platoLabelsSGC.setGeometry(psf.getGeometry());
 		platoLabelsSGC.setVisible(showLabels);
@@ -224,17 +226,40 @@ public class ArchimedeanSolidsDemo  extends LoadableScene {
 		}
 		return plato;
 	}
-	public SceneGraphComponent makeWorld()	{
+	
+	
+	@Override
+	public List<Plugin> getPluginsToRegister() {
+		// TODO Auto-generated method stub
+		super.getPluginsToRegister();
+		Sky sky = new Sky();
+		sky.setEnvironment("Snow");
+		sky.setShowSky(true);
+		pluginsToLoad.add(sky);
+		return pluginsToLoad;
+//		psl.getVRPanel().setShowPanel(true);
+//		psl.getJRViewer().registerPlugin(sky);
+//		try {
+//			sky.install(psl.getController());
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+
+	}
+
+
+	public SceneGraphComponent getContent()	{
 		//replaceSolid("3.3.3");
 		showAll();
 		setVisibility();
 		return theWorld;
 	}
 
-	Viewer viewer;
 	@Override
-	public void customize(JMenuBar theMenuBar, PluginSceneLoader psl)	{
-		viewer = psl.getViewer();
+	public void display()	{
+		super.display();
+		viewer = jrviewer.getViewer();
 		viewer.getSceneRoot().getAppearance().setAttribute(
 				"polygonShader.reflectionMap:blendColor",
 				new Color(1f, 1f, 1f, (float) .3));
@@ -249,17 +274,6 @@ public class ArchimedeanSolidsDemo  extends LoadableScene {
 		backgroundArray[2] = LLBackground;
 		backgroundArray[3] = LRBackground;  //bg[2];
 		viewer.getSceneRoot().getAppearance().setAttribute("backgroundColors", backgroundArray);
-		Sky sky = new Sky();
-		sky.setEnvironment("Snow");
-		sky.setShowSky(true);
-		psl.getVRPanel().setShowPanel(true);
-		psl.getJRViewer().registerPlugin(sky);
-		try {
-			sky.install(psl.getController());
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		//theMenuBar = super.createMenuBar();
 		((Component) viewer.getViewingComponent()).addKeyListener(new KeyAdapter() {
 
@@ -347,12 +361,9 @@ public class ArchimedeanSolidsDemo  extends LoadableScene {
 	}
 	
 	@Override
-	public boolean hasInspector()  { return true; }
-	
-	@Override
-	public Component getInspector(Viewer v)	{
+	public Component getInspector()	{
 //		JPanel mypanel = new JPanel();
-		Box vbox = Box.createVerticalBox();
+		Box vbox = inspector;
 		Box hbox = Box.createVerticalBox();
 		JMenuBar menubar = new JMenuBar();
 		hbox.add(Box.createHorizontalGlue());
@@ -455,4 +466,7 @@ public class ArchimedeanSolidsDemo  extends LoadableScene {
 		return vbox;
 	}
 
+	public static void main(String[] args) {
+		new ArchimedeanSolidsDemo().display();
+	}
 }
