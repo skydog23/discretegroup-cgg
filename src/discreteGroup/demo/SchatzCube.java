@@ -655,7 +655,7 @@ public class SchatzCube extends Assignment {
 		moved2Still = Rn.times(null, stillDiagonal.getArray(), Rn.inverse(null, movedDiagonal.getArray()));
 	    oloidCenterSGC.getTransformation().setMatrix(Rn.inverse(null, moved2Still));
 //		moved2Still = P3.orthonormalizeMatrix(null, moved2Still, .00001, Pn.EUCLIDEAN);
-		double[] totalM = Rn.times(null, w2Diagonal.getMatrix(null), moved2Still);
+//		double[] totalM = Rn.times(null, w2Diagonal.getMatrix(null), moved2Still);
 //		System.err.println("stillDiagonal = \n"+Rn.matrixToString(stillDiagonal.getArray()));
 //		System.err.println("movedDiagonal = \n"+Rn.matrixToString(movedDiagonal.getArray()));
 //		System.err.println("moved diagonal = \n"+Rn.matrixToString(movedDiagonal.getArray()));
