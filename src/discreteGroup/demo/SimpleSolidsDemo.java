@@ -34,9 +34,9 @@ public class SimpleSolidsDemo extends Assignment    {
 		SceneGraphComponent skin = null, bones = null;
 		try {
 			bones  = Readers.read(
-					Input.getInput("/gunn_local/Models/geomview/dodec2.xyzr")); //OBJ/Genus2_stl/Polyhedron_2_10_20332.jvx"));// 
+					Input.getInput("/Volumes/SamsungSSD1T/gunn_local/Models/geomview/dodec2.xyzr")); //OBJ/Genus2_stl/Polyhedron_2_10_20332.jvx"));// 
 			skin  = Readers.read(
-					Input.getInput("/gunn_local/Models/Molecules/dodec.msms")); //OBJ/Genus2_stl/Polyhedron_2_10_20332.jvx"));// 
+					Input.getInput("/Volumes/SamsungSSD1T/gunn_local/Models/Molecules/dodec.msms")); //OBJ/Genus2_stl/Polyhedron_2_10_20332.jvx"));// 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

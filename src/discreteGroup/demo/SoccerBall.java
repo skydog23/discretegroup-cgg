@@ -28,7 +28,7 @@ import de.jtem.discretegroup.groups.TriangleGroup;
 public class SoccerBall extends LoadableScene {
 	SceneGraphComponent icokit;
 	boolean tryFlatten = true;
-	int refineLevel = 3;
+	int refineLevel = 4;
 	public void setRefineLevel(int rf)	{
 		refineLevel = rf;
 	}

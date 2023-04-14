@@ -195,7 +195,7 @@ public class SimpleManiview  {
 		animplugin.setAnimateSceneGraph(true);
 //		ImportExport.readInto(animplugin.getAnimationPanel(), 
 //				this.getClass().getResourceAsStream("simpleManiviewAnim-05.xml"));
-		animplugin.getAnimationPanel().getRecordPrefs().setCurrentDirectoryPath("/gunn_local/Movies/conformal/stereographproj");
+		animplugin.getAnimationPanel().getRecordPrefs().setCurrentDirectoryPath("/Volumes/SamsungSSD1T/gunn_local/Movies/conformal/stereographproj");
 		animplugin.getAnimationPanel().setResourceDir("src/de/jtem/discretegroup/tutorial/");
 
 		// following is now optional; without it uses trivial group

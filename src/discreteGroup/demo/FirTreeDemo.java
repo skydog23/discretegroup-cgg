@@ -75,7 +75,7 @@ public class FirTreeDemo extends LoadableScene {
 	double globalSpeed = 1.0;
 	int framesPerSecond = 30;
 	Dimension dim = new Dimension(640, 480);
-	final static String textureRoot = "/gunn_local/TUB-HomepageOct19/WWW/"; //http://www.math.tu-berlin.de/~gunn/"; //"/Users/gunn/"; //
+	final static String textureRoot = "/Volumes/SamsungSSD1T/gunn_local/TUB-HomepageOct19/WWW/"; //http://www.math.tu-berlin.de/~gunn/"; //"/Users/gunn/"; //
 	Timer timer;
 	Viewer viewer;
 	@Override

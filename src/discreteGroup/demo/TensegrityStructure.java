@@ -54,6 +54,7 @@ public class TensegrityStructure extends Assignment {
 			}
 			
 		};
+		pp.getContent();
 		DragEventTool t = new DragEventTool();
 		double[] highlightColor = {1,0,0,1};		// highlight point in red
 		t.addPointDragListener(new PointDragListener() {
