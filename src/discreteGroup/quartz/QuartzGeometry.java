@@ -4,6 +4,14 @@
  */
 package discreteGroup.quartz;
 
+import static discreteGroup.quartz.QuartzConstants.axis3Pts;
+import static discreteGroup.quartz.QuartzConstants.basScale;
+import static discreteGroup.quartz.QuartzConstants.oxygenColor;
+import static discreteGroup.quartz.QuartzConstants.oxygenRad;
+import static discreteGroup.quartz.QuartzConstants.siliconColor;
+import static discreteGroup.quartz.QuartzConstants.siliconRad;
+import static discreteGroup.quartz.QuartzConstants.stickRad;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -21,6 +29,7 @@ import de.jreality.geometry.IndexedLineSetUtility;
 import de.jreality.math.Matrix;
 import de.jreality.math.MatrixBuilder;
 import de.jreality.math.P3;
+import de.jreality.math.Pn;
 import de.jreality.math.Rn;
 import de.jreality.scene.Appearance;
 import de.jreality.scene.Geometry;
@@ -43,33 +52,23 @@ public class QuartzGeometry {
 	static private int[][] edgeIndices = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
 	protected int[][] edgeIndices4 = { { 0, 1 }, { 0, 2 }, { 1, 3 }, { 2, 3 } };
 
-	Color hfclrs[] = {Color.yellow, Color.yellow, Color.cyan, Color. cyan}; 
-	Color heclrs[] = {Color.cyan, Color.magenta,  Color.yellow, Color.magenta, Color.cyan}; 
 	protected double[][] halftetpts = { { 1, 1, 1 }, { 1, -1, -1 }, {0,1,0},{0,0,1},{0,-1,0},{0,0,-1}};
 
 	protected int[][] halftetrahedronIndices = { { 0, 1, 5, 2 }, { 0, 2, 3 }, { 0,3,4,1 }, { 1,4,5 } };
 	static private int[][] halfedgeIndices = { { 0, 1 }, {1,5},  { 0, 2 }, { 0, 3 }, {1,4} };
 	protected int[][] halfedgeIndices4 = { { 0, 1 }, { 0, 2 }, { 1,3} };
 
-
-	protected double axis3Pts[][] = {{1.0/3.0,0,0,1}, {1.0/3.0,0,1,1}};
-	final double sq3 = 1/Math.sqrt(3.0);
-	double[][] rhombpts = {{1,0,0,1},{0,sq3,0,1},{-1,0,0,1},{0,-sq3,0,1}};
+	double sq3 = QuartzConstants.sq3;
+	double[][] rhombpts = {{1,0,0,1},{0,QuartzConstants.sq3,0,1}, {0,-sq3,0,1}};
 	IndexedFaceSet rhomb = IndexedFaceSetUtility.constructPolygon(rhombpts);
 
-	double a = 1.0, b = 1.0, c = 1.25486;
-	double tetraYTlate = 0.0289284, 
-			tetraAngle = 0.23509,
-			tetraScale = 0.21506;
+	double a = 1.0, b = 1.0, c = 1.25485;
+	double tetraYTlate = 0.035083, 
+			tetraAngle = 0.28405,
+			tetraScale = 0.216834;
 
 	Matrix tetraM = new Matrix(),
-			screw3[] = new Matrix[3],
-			transGens[] = new Matrix[3];
-	{
-		transGens[0] = MatrixBuilder.euclidean().translate(1,sq3,0).getMatrix();
-		transGens[1] = MatrixBuilder.euclidean().translate(1,-sq3,0).getMatrix();
-		transGens[2] = MatrixBuilder.euclidean().translate(0,0,c).getMatrix();
-	}
+			screw3[] = new Matrix[3];
 	
 	QuartzCrystal owner;
 	boolean showFaceColors = true;
@@ -101,9 +100,9 @@ public class QuartzGeometry {
 		ifsf.setFaceCount(halftetrahedronIndices.length);
 		ifsf.setVertexCoordinates(halftetpts);
 		ifsf.setEdgeIndices(halfedgeIndices);
-		ifsf.setEdgeColors(heclrs);
+		ifsf.setEdgeColors(QuartzConstants.heclrs);
 		ifsf.setFaceIndices(halftetrahedronIndices);
-		if (showFaceColors) ifsf.setFaceColors(hfclrs);
+		if (showFaceColors) ifsf.setFaceColors(QuartzConstants.hfclrs);
 		ifsf.setGenerateFaceNormals(true);
 		ifsf.update();
 		return ifsf.getIndexedFaceSet();
@@ -124,7 +123,8 @@ public class QuartzGeometry {
 		Matrix tm = MatrixBuilder.euclidean().rotate(tetraAngle, 0, 1, 0).scale(tetraScale).getMatrix();
 		double[][] tpts = Rn.matrixTimesVector(null, tm.getArray(), tetpts);
 		if (debug) System.err.println("tetra pts = "+Rn.toString(tpts));
-		// attempt to calculate y-translation so the image tetra shares a vertex
+		// calculate y-translation so the image tetra shares a vertex
+		// with the source tetra
 		double[] P0 = tpts[1], P1 = tpts[0], P2 = axis3Pts[0];
 		double dx12 = P1[0] - P2[0],
 				dx02 = P0[0] - P2[0],
@@ -134,6 +134,7 @@ public class QuartzGeometry {
 				y = (dx12*dx12 - dx02*dx02 + y0*y0 - y1*y1)/(2*(y0-y1));
 		tetraYTlate = y;
 		// estimate the scaling needed to get 120 degree visual angle
+		// first project the two end-points down to the horizontal plane
 		double[] V1 = Rn.subtract(null,P1, axis3Pts[0]),
 				V0 = Rn.subtract(null,P0, axis3Pts[0]);
 		V1[1] += tetraYTlate; V1[2] = 0;
@@ -148,33 +149,38 @@ public class QuartzGeometry {
 		int count = 0;
 		while (count < 10 && Math.abs(angle - (2.0/3.0)*Math.PI) > .00001) {
 			tetraScale = tetraScale * (1 + (one80/angle))/2.0;
+//			tm = MatrixBuilder.euclidean().translate(0, tetraYTlate, 0).rotate(tetraAngle, 0, 1, 0).scale(tetraScale).getMatrix();
 			tm = MatrixBuilder.euclidean().rotate(tetraAngle, 0, 1, 0).scale(tetraScale).getMatrix();
 			tpts = Rn.matrixTimesVector(null, tm.getArray(), tetpts);
 			angle = angleFor3Points(tpts[1],P2,tpts[0], true);
 			if (debug) System.err.println("tetrascale=\t"+tetraScale+"\tVisual angle is "+angle*(180/Math.PI));
 			count++;
 		}
-		tetraM = tm;
+		// compute the vertical translation and distribute that to the whole app
 		P0 = tpts[1]; P1 = tpts[0];
 		dz = P1[2] - P0[2];
 		owner.updateC(3*dz);
+		// calculate the full transformation for the 
+		tm = MatrixBuilder.euclidean().translate(0, tetraYTlate, 0).rotate(tetraAngle, 0, 1, 0).scale(tetraScale).getMatrix();
+		tetraM = tm;
+		tpts = Rn.matrixTimesVector(null, tm.getArray(), tetpts);
+
 		double[] siAtom2 = new double[4], OAtom = new double[4];
 		System.err.println("ytlate = "+tetraYTlate+"\tangle = "+(2*Math.PI)*tetraAngle+
 				"\tscale = "+tetraScale+"\tc = "+c*Math.sqrt(3/4.0));
-		for (int i = 0; i<3; ++i)	{
-			screw3[i] = MatrixBuilder.euclidean().
-				rotate(axis3Pts[0], axis3Pts[1], -2*(i/3.0)*Math.PI).
-				translate(0,0,i*dz).
-				translate(0,tetraYTlate,0).getMatrix();
-			if (i == 0) {
-				OAtom = screw3[i].multiplyVector(tpts[0]);
-			}
-			if (i==1) {
-				siAtom2 = screw3[i].multiplyVector(P3.originP3);
-			}
-		}
+		double[] transO = new double[]{0,tetraYTlate,0,1};
+		OAtom = tpts[0];
+		siAtom2 = owner.quartzGroup.getTriChannelM()[1].multiplyVector(transO);
+//		for (int i = 0; i<3; ++i)	{
+//			if (i == 0) {
+//				OAtom = tpts[0];
+//			}
+//			if (i==1) {
+//				siAtom2 = screw3[i].multiplyVector(transO);
+//			}
+//		}
 		// calculate the bond angle Si-O-Si
-		angle = angleFor3Points(P3.originP3, OAtom, siAtom2, false);
+		angle = angleFor3Points(transO, OAtom, siAtom2, false);
 		System.err.println("bond angle = "+angle*(180/Math.PI));
 		// calculate the projected length of the "order-6" edges of the tetrahedron
 		double x0 = tpts[0][0] - tpts[2][0],
@@ -210,17 +216,14 @@ public class QuartzGeometry {
 		return screw3;
 	}
 
-	public IndexedFaceSet getRhomb() {
+	public IndexedFaceSet getTriangle() {
 		return rhomb;
 	}
 
-	public Matrix[] getTransGens() {
-		return transGens;
-	}
 
 	public Geometry getAxis() {
-		double points[][] = {{1.0/3,0,0,1},{1.0/3,0,c,1}};
-		IndexedLineSet ils = IndexedLineSetUtility.createCurveFromPoints(points, false);
+		double axis3Pts[][] = {{1.0/3.0,0,0,1}, {1.0/3.0,0,c,1}};
+		IndexedLineSet ils = IndexedLineSetUtility.createCurveFromPoints(QuartzConstants.axis3Pts, false);
 		return ils;
 	}
 	
@@ -269,12 +272,10 @@ public class QuartzGeometry {
 		return container;
 	}
 	
+	 protected Color[] pointClr = {siliconColor, oxygenColor, oxygenColor, oxygenColor, oxygenColor};
 	 protected double[][] baspts = {{0,0,0}, { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 }  };
 	 protected int[][] basIndices =  {{0,1},{0,2},{0,3},{0,4}};
-	 double str = .06, or = .15, sr = .3, basScale = 1;
-	 protected double[] pointRadii = {sr, or, or, or, or};
-	 Color oc = Color.yellow, sc = Color.cyan;
-	 protected Color[] pointClr = {sc, oc, oc, oc, oc};
+	 protected double[] pointRadii = {siliconRad, oxygenRad, oxygenRad, oxygenRad, oxygenRad};
 	 BallAndStickFactory basf  = null;
 	IndexedLineSetFactory ilsf = new IndexedLineSetFactory();
 	SceneGraphComponent ilssgc = SceneGraphUtility.createFullSceneGraphComponent();
@@ -296,7 +297,7 @@ public class QuartzGeometry {
 			basf.setShowBalls(true);
 			basf.setShowSticks(true);
 			basf.setStickColor(Color.lightGray);
-			basf.setStickRadius(basScale*str);
+			basf.setStickRadius(basScale*QuartzConstants.siliconRad);
 			basf.update();
 			ret = basf.getSceneGraphComponent();			
 		} else {
@@ -314,10 +315,10 @@ public class QuartzGeometry {
 		ilsf.setVertexAttribute(Attribute.RELATIVE_RADII, Rn.times(null, basScale, pointRadii));
 		ilsf.update();
 		Appearance ap = ilssgc.getAppearance();
-		ap.setAttribute("lineShader."+CommonAttributes.TUBE_RADIUS, basScale*str);
+		ap.setAttribute("lineShader."+CommonAttributes.TUBE_RADIUS, basScale*stickRad);
 		ap.setAttribute("pointShader."+CommonAttributes.POINT_RADIUS, 1.0);
 		if (doBAS) {
-			basf.setStickRadius(basScale * str);
+			basf.setStickRadius(basScale * stickRad);
 			basf.update();		
 		}
 	}
