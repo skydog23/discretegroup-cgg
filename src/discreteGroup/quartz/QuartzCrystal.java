@@ -241,12 +241,11 @@ public class QuartzCrystal extends Assignment {
 			tessellatedContent.setContent(sixRep.getRepresentationRoot());
 			tessellatedContent.getTheRepn().update();
 		} else {
-			de.jreality.plugin.basic.Scene scene = 
-					jrviewer.getPlugin(de.jreality.plugin.basic.Scene.class);
+//			de.jreality.plugin.basic.Scene scene = 
+//					jrviewer.getPlugin(de.jreality.plugin.basic.Scene.class);
 			FlyTool flytool;
 			SceneGraphPath avatarPath;
 			avatarPath = scene.getAvatarPath();
-			Transformation avatarT = avatarPath.getLastComponent().getTransformation();
 			flytool = new FlyTool();
 			flytool.setGain(.5);
 			avatarPath.getLastComponent().addTool(flytool);
