@@ -6,6 +6,8 @@ package discreteGroup.quartz;
 
 import static discreteGroup.quartz.QuartzConstants.axis3Pts;
 import static discreteGroup.quartz.QuartzConstants.basScale;
+import static discreteGroup.quartz.QuartzConstants.chan31Color;
+import static discreteGroup.quartz.QuartzConstants.chan32Color;
 import static discreteGroup.quartz.QuartzConstants.oxygenColor;
 import static discreteGroup.quartz.QuartzConstants.oxygenRad;
 import static discreteGroup.quartz.QuartzConstants.siliconColor;
@@ -23,17 +25,13 @@ import javax.swing.SwingConstants;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.BallAndStickFactory;
 import de.jreality.geometry.IndexedFaceSetFactory;
-import de.jreality.geometry.IndexedFaceSetUtility;
 import de.jreality.geometry.IndexedLineSetFactory;
 import de.jreality.geometry.IndexedLineSetUtility;
 import de.jreality.math.Matrix;
 import de.jreality.math.MatrixBuilder;
-import de.jreality.math.P3;
-import de.jreality.math.Pn;
 import de.jreality.math.Rn;
 import de.jreality.scene.Appearance;
 import de.jreality.scene.Geometry;
-import de.jreality.scene.IndexedFaceSet;
 import de.jreality.scene.IndexedLineSet;
 import de.jreality.scene.SceneGraphComponent;
 import de.jreality.scene.data.Attribute;
@@ -42,9 +40,9 @@ import de.jreality.util.SceneGraphUtility;
 
 public class QuartzGeometry {
 
-	Color fclrs[] = {Color.cyan, Color.cyan, Color. yellow, Color.yellow};
+	Color fclrs[] = {Color.yellow, Color. cyan, Color.yellow, Color.cyan};
 	Color eclrs[] = {Color.orange, Color.cyan, Color.magenta, Color.magenta, Color.cyan, Color.orange}; 
-	Color eclrs4[] = { Color.orange, Color.cyan, Color.cyan, Color.orange }; // Color.yellow, Color. green, Color.blue};
+	Color eclrs4[] = { chan32Color, Color.magenta, Color.magenta, chan31Color}; // Color.yellow, Color. green, Color.blue};
 
 	protected double[][] tetpts = { { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 } };
 
@@ -60,7 +58,7 @@ public class QuartzGeometry {
 
 	double sq3 = QuartzConstants.sq3;
 	double[][] rhombpts = {{1,0,0,1},{0,QuartzConstants.sq3,0,1}, {0,-sq3,0,1}};
-	IndexedFaceSet rhomb = IndexedFaceSetUtility.constructPolygon(rhombpts);
+	IndexedLineSet rhomb = IndexedLineSetUtility.createCurveFromPoints(rhombpts, true);
 
 	double a = 1.0, b = 1.0, c = 1.25485;
 	double tetraYTlate = 0.035083, 
@@ -212,18 +210,20 @@ public class QuartzGeometry {
 	}
 
 
-	public Matrix[] getScrew3() {
-		return screw3;
-	}
-
-	public IndexedFaceSet getTriangle() {
+	public IndexedLineSet getTriangle() {
 		return rhomb;
 	}
 
 
-	public Geometry getAxis() {
-		double axis3Pts[][] = {{1.0/3.0,0,0,1}, {1.0/3.0,0,c,1}};
-		IndexedLineSet ils = IndexedLineSetUtility.createCurveFromPoints(QuartzConstants.axis3Pts, false);
+	public Geometry get3Axis() {
+		double axis[][] = {{1.0/3.0,0,-c/6,1}, {1.0/3.0,0,c/6,1}};
+		IndexedLineSet ils = IndexedLineSetUtility.createCurveFromPoints(axis, false);
+		return ils;
+	}
+	
+	public Geometry get6Axis() {
+		double axis[][] = {{0,sq3,0,1}, {0,sq3,c/3,1}};
+		IndexedLineSet ils = IndexedLineSetUtility.createCurveFromPoints(axis, false);
 		return ils;
 	}
 	
@@ -272,7 +272,8 @@ public class QuartzGeometry {
 		return container;
 	}
 	
-	 protected Color[] pointClr = {siliconColor, oxygenColor, oxygenColor, oxygenColor, oxygenColor};
+	 protected Color[] pointClr = {siliconColor, oxygenColor, oxygenColor, oxygenColor, oxygenColor},
+			 edgeClr = {chan32Color, chan32Color, chan31Color, chan31Color};
 	 protected double[][] baspts = {{0,0,0}, { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 }  };
 	 protected int[][] basIndices =  {{0,1},{0,2},{0,3},{0,4}};
 	 protected double[] pointRadii = {siliconRad, oxygenRad, oxygenRad, oxygenRad, oxygenRad};
@@ -285,6 +286,7 @@ public class QuartzGeometry {
 		ilsf.setEdgeCount(4);
 		ilsf.setVertexCoordinates(baspts);
 		ilsf.setEdgeIndices(basIndices);
+		ilsf.setEdgeColors(edgeClr);
 		ilsf.setVertexColors(pointClr);
 		ilsf.setVertexAttribute(Attribute.RELATIVE_RADII, Rn.times(null, basScale, pointRadii));
 		ilsf.setVertexAttribute(Attribute.POINT_SIZE, Rn.times(null, basScale, pointRadii));
