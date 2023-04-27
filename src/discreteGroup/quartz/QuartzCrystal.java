@@ -115,7 +115,7 @@ public class QuartzCrystal extends Assignment {
 		int xsecN = 9;
 		ap.setName("a3");
 		ap.setAttribute("crossSection", TubeUtility.getNgon(9));
-		ap.setAttribute("lineShader.tubeRadius", .0125);
+		ap.setAttribute("lineShader.tubeRadius", .1);
 		ap = axis6sgc.getAppearance();
 		ap.setName("a6");
 		ap.setAttribute("crossSection", TubeUtility.getNgon(9));
