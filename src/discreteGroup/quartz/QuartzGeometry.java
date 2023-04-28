@@ -12,6 +12,7 @@ import static discreteGroup.quartz.QuartzConstants.oxygenColor;
 import static discreteGroup.quartz.QuartzConstants.oxygenRad;
 import static discreteGroup.quartz.QuartzConstants.siliconColor;
 import static discreteGroup.quartz.QuartzConstants.siliconRad;
+import static discreteGroup.quartz.QuartzConstants.sq3;
 import static discreteGroup.quartz.QuartzConstants.stickRad;
 
 import java.awt.Color;
@@ -24,14 +25,19 @@ import javax.swing.SwingConstants;
 
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.BallAndStickFactory;
+import de.jreality.geometry.GeometryUtility;
 import de.jreality.geometry.IndexedFaceSetFactory;
 import de.jreality.geometry.IndexedLineSetFactory;
 import de.jreality.geometry.IndexedLineSetUtility;
+import de.jreality.geometry.PolygonalTubeFactory;
+import de.jreality.geometry.TubeUtility;
 import de.jreality.math.Matrix;
 import de.jreality.math.MatrixBuilder;
+import de.jreality.math.Pn;
 import de.jreality.math.Rn;
 import de.jreality.scene.Appearance;
 import de.jreality.scene.Geometry;
+import de.jreality.scene.IndexedFaceSet;
 import de.jreality.scene.IndexedLineSet;
 import de.jreality.scene.SceneGraphComponent;
 import de.jreality.scene.data.Attribute;
@@ -40,9 +46,6 @@ import de.jreality.util.SceneGraphUtility;
 
 public class QuartzGeometry {
 
-	Color fclrs[] = {Color.yellow, Color. cyan, Color.yellow, Color.cyan};
-	Color eclrs[] = {Color.orange, Color.cyan, Color.magenta, Color.magenta, Color.cyan, Color.orange}; 
-	Color eclrs4[] = { chan32Color, Color.magenta, Color.magenta, chan31Color}; // Color.yellow, Color. green, Color.blue};
 
 	protected double[][] tetpts = { { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 } };
 
@@ -57,8 +60,6 @@ public class QuartzGeometry {
 	protected int[][] halfedgeIndices4 = { { 0, 1 }, { 0, 2 }, { 1,3} };
 
 	double sq3 = QuartzConstants.sq3;
-	double[][] rhombpts = {{1,0,0,1},{0,QuartzConstants.sq3,0,1}, {0,-sq3,0,1}};
-	IndexedLineSet rhomb = IndexedLineSetUtility.createCurveFromPoints(rhombpts, true);
 
 	double a = 1.0, b = 1.0, c = 1.25485;
 	double tetraYTlate = 0.035083, 
@@ -83,9 +84,9 @@ public class QuartzGeometry {
 		ifsf.setFaceCount(4);
 		ifsf.setVertexCoordinates(tetpts);
 		ifsf.setEdgeIndices(edgeIndices4);
-		ifsf.setEdgeColors(eclrs4);
+		ifsf.setEdgeColors(QuartzConstants.eclrs4);
 		ifsf.setFaceIndices(tetrahedronIndices);
-		if (showFaceColors) ifsf.setFaceColors(fclrs);
+		if (showFaceColors) ifsf.setFaceColors(QuartzConstants.fclrs);
 		ifsf.setGenerateFaceNormals(true);
 		ifsf.update();
 		return ifsf.getIndexedFaceSet();
@@ -105,6 +106,39 @@ public class QuartzGeometry {
 		ifsf.update();
 		return ifsf.getIndexedFaceSet();
 	}
+	
+	IndexedLineSetFactory cellILSF;
+
+	public IndexedLineSet getCellOutline() {
+		double xx =-1/3.0;
+		double[][] hexpts = {
+				{xx,0,0,1},
+				{xx+1/3.0,sq3,0,1}, 
+				{xx+1, sq3,0,1},
+				{xx+4/3.0,0,0,1},
+				{xx+1, -sq3,0,1},
+				{xx+1/3.0, -sq3, 0, 1},
+				{ xx, 0, c, 1 }, 
+				{xx+1/3.0, sq3, c, 1 }, 
+				{ xx+1, sq3, c, 1 }, 
+				{xx+4/3.0, 0, c, 1 },
+				{xx+1, -sq3,c, 1 }, 
+				{ xx+1/3.0, -sq3, c, 1 } };
+		int[][] indices = {{0,1,2,3,4,5,0},{6,7,8,9,10,11,6},
+				{0,6},{1,7},{2,8},{3,9},{4,10},{5,11}};
+		if (cellILSF == null) {
+			cellILSF = new IndexedLineSetFactory();
+			cellILSF.setVertexCount(hexpts.length);
+			cellILSF.setEdgeCount(indices.length);
+			cellILSF.setEdgeIndices(indices);
+		}
+		cellILSF.setVertexCoordinates(hexpts);
+		cellILSF.update();
+		
+		return cellILSF.getIndexedLineSet();
+	}
+
+
 
 	static boolean debug = true;
 
@@ -164,26 +198,18 @@ public class QuartzGeometry {
 		tpts = Rn.matrixTimesVector(null, tm.getArray(), tetpts);
 
 		double[] siAtom2 = new double[4], OAtom = new double[4];
-		System.err.println("ytlate = "+tetraYTlate+"\tangle = "+(2*Math.PI)*tetraAngle+
+		if (debug) System.err.println("ytlate = "+tetraYTlate+"\tangle = "+(2*Math.PI)*tetraAngle+
 				"\tscale = "+tetraScale+"\tc = "+c*Math.sqrt(3/4.0));
 		double[] transO = new double[]{0,tetraYTlate,0,1};
 		OAtom = tpts[0];
 		siAtom2 = owner.quartzGroup.getTriChannelM()[1].multiplyVector(transO);
-//		for (int i = 0; i<3; ++i)	{
-//			if (i == 0) {
-//				OAtom = tpts[0];
-//			}
-//			if (i==1) {
-//				siAtom2 = screw3[i].multiplyVector(transO);
-//			}
-//		}
 		// calculate the bond angle Si-O-Si
 		angle = angleFor3Points(transO, OAtom, siAtom2, false);
-		System.err.println("bond angle = "+angle*(180/Math.PI));
+		if (debug) System.err.println("bond angle = "+angle*(180/Math.PI));
 		// calculate the projected length of the "order-6" edges of the tetrahedron
 		double x0 = tpts[0][0] - tpts[2][0],
 				x1 = tpts[1][0] - tpts[3][0];
-		System.err.println("ratio of blue edges: "+(x1/x0));
+		if (debug) System.err.println("ratio of blue edges: "+(x1/x0));
 		// calculate the density of the 3 tetrahedra within the crystal cell
 		// (each of the 6 tetrahedron count as half-there, since each one belongs
 		// to two adjacent cells
@@ -209,22 +235,20 @@ public class QuartzGeometry {
 		return tetraM;
 	}
 
-
-	public IndexedLineSet getTriangle() {
-		return rhomb;
+	public Matrix getAxis3M() {
+		double axis[][] = {{0,0,c/2,1}, {0,1,0,0}};
+		return MatrixBuilder.euclidean().rotate(axis[0], axis[1], Math.PI).getMatrix();
 	}
 
-
 	public Geometry get3Axis() {
-		double axis[][] = {{1.0/3.0,0,-c/6,1}, {1.0/3.0,0,c/6,1}};
+		double axis[][] = {{1/3.0,0,0,1}, {1.0/3.0,0,c,1}};
 		IndexedLineSet ils = IndexedLineSetUtility.createCurveFromPoints(axis, false);
 		return ils;
 	}
 	
 	public Geometry get6Axis() {
-		double axis[][] = {{0,sq3,0,1}, {0,sq3,c/3,1}};
-		IndexedLineSet ils = IndexedLineSetUtility.createCurveFromPoints(axis, false);
-		return ils;
+		double axis[][] = {{0,sq3,0,1}, {0,sq3,c,1}};
+		return IndexedLineSetUtility.createCurveFromPoints(axis, false);
 	}
 	
 	public Component getInspector() {
@@ -238,7 +262,7 @@ public class QuartzGeometry {
 				updateTetras();	
 			}
 		});
-		container.add(tsSlider);
+//		container.add(tsSlider);
 		final TextSlider<Double> taSlider = new TextSlider.Double("tetra angle",  SwingConstants.HORIZONTAL,0.0, 1.0, tetraAngle);
 		taSlider.addActionListener(new ActionListener() {
 			
@@ -258,8 +282,8 @@ public class QuartzGeometry {
 				owner.updateTetras();	
 			}
 		});
-		container.add(ttSlider);
-		final TextSlider<Double> bsSlider = new TextSlider.Double("ball-stick scale",  SwingConstants.HORIZONTAL, 1,10, basScale);
+//		container.add(ttSlider);
+		final TextSlider<Double> bsSlider = new TextSlider.Double("ball-stick scale",  SwingConstants.HORIZONTAL, 0, 4.0, basScale);
 		bsSlider.addActionListener(new ActionListener() {
 			
 			@Override
@@ -273,7 +297,7 @@ public class QuartzGeometry {
 	}
 	
 	 protected Color[] pointClr = {siliconColor, oxygenColor, oxygenColor, oxygenColor, oxygenColor},
-			 edgeClr = {chan32Color, chan32Color, chan31Color, chan31Color};
+			 edgeClr = {chan31Color, chan31Color, chan32Color, chan32Color};
 	 protected double[][] baspts = {{0,0,0}, { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 }  };
 	 protected int[][] basIndices =  {{0,1},{0,2},{0,3},{0,4}};
 	 protected double[] pointRadii = {siliconRad, oxygenRad, oxygenRad, oxygenRad, oxygenRad};
