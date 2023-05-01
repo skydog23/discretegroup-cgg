@@ -140,6 +140,9 @@ public class QuartzCrystal extends Assignment {
 	   			ShaderUtility.createDefaultGeometryShader(ap, true);
 		ImplodePolygonShader dps = (ImplodePolygonShader) dgs.createPolygonShader("implode");
 		ap.setAttribute("implodeFactor", implodeFactor);
+		ap.setAttribute(CommonAttributes.VERTEX_DRAW, true);
+		ap.setAttribute("pointShader.diffuseColor", Color.white);
+		ap.setAttribute("pointShader.pointRadius", .01);
 		
 		tetraGeomSGC.addChildren(tetrasgc, bassgc);
 		tetraHalfGeomSGC.addChildren(tetrasgc, bassgc);
@@ -354,8 +357,10 @@ public class QuartzCrystal extends Assignment {
 		camsgc.addChildren(lights);
 
 		viewer = jrviewer.getViewer();
-		viewer.getSceneRoot().getAppearance().setAttribute(CommonAttributes.BACKGROUND_COLOR,new Color(51,51,51)); 
-		viewer.getSceneRoot().getAppearance().setAttribute(CommonAttributes.TUBE_RADIUS, .01);
+		Appearance rap = viewer.getSceneRoot().getAppearance();
+		rap.setAttribute(CommonAttributes.BACKGROUND_COLOR,new Color(51,51,51)); 
+		rap.setAttribute(CommonAttributes.TUBE_RADIUS, .01);
+		updateFog();
 		
 		// set near and far clipping plane
 		Camera cam = CameraUtility.getCamera(viewer);
@@ -443,12 +448,26 @@ public class QuartzCrystal extends Assignment {
 					printInfo();
 					break;
 
+				case KeyEvent.VK_0:
+					updateFog();
+					break;
+
 
 				}
 			}
 
 		});
 	
+	}
+
+	private void updateFog() {
+		Appearance rap = viewer.getSceneRoot().getAppearance();
+		rap.setAttribute(CommonAttributes.FOG_MODE,1);
+		rap.setAttribute(CommonAttributes.FOG_BEGIN, 2.0);
+		rap.setAttribute(CommonAttributes.FOG_END, 6.0);
+		rap.setAttribute(CommonAttributes.FOG_DENSITY, .03);
+		rap.setAttribute(CommonAttributes.FOG_COLOR, new Color(51,51,51));
+		rap.setAttribute(CommonAttributes.FOG_ENABLED, true);
 	}
 	private void printInfo() {
 		int total = 1;
@@ -496,7 +515,7 @@ public class QuartzCrystal extends Assignment {
 	private void updateCamera() {
 		Camera cam = CameraUtility.getCamera(viewer);
 		cam.setNear(.2);
-		cam.setFar(10.0);
+		cam.setFar(20.0);
 	}
 	
 	boolean isCenterCam = false;

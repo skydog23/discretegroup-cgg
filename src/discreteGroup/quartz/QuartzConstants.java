@@ -18,6 +18,7 @@ public class QuartzConstants {
 			chan2 = Color.cyan,
 			chan3 = new Color(51,255,51);
 	static Color fclrs[] = {chan1, chan2, chan1, chan2};
+	static Color vclrs[] = {chan1, chan1, chan2, chan2};
 	static Color eclrs[] = {Color.orange, chan2, chan3, chan2, chan1, Color.orange}; 
 	static Color eclrs4[] = {chan1, chan3, chan3, chan2}; // Color.yellow, Color. green, Color.blue};
 	static Color hfclrs[] = {chan1, chan1, chan2, chan2}; 

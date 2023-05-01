@@ -14,6 +14,7 @@ import static discreteGroup.quartz.QuartzConstants.siliconColor;
 import static discreteGroup.quartz.QuartzConstants.siliconRad;
 import static discreteGroup.quartz.QuartzConstants.sq3;
 import static discreteGroup.quartz.QuartzConstants.stickRad;
+import static discreteGroup.quartz.QuartzConstants.vclrs;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -83,6 +84,7 @@ public class QuartzGeometry {
 		ifsf.setEdgeCount(edgeIndices4.length);
 		ifsf.setFaceCount(4);
 		ifsf.setVertexCoordinates(tetpts);
+		ifsf.setVertexColors(vclrs);
 		ifsf.setEdgeIndices(edgeIndices4);
 		ifsf.setEdgeColors(QuartzConstants.eclrs4);
 		ifsf.setFaceIndices(tetrahedronIndices);
