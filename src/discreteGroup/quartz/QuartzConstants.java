@@ -4,9 +4,6 @@
  */
 package discreteGroup.quartz;
 
-import static discreteGroup.quartz.QuartzConstants.chan31Color;
-import static discreteGroup.quartz.QuartzConstants.chan32Color;
-
 import java.awt.Color;
 
 import charlesgunn.anim.util.AnimationUtility;

@@ -37,6 +37,7 @@ import de.jreality.math.P3;
 import de.jreality.math.Pn;
 import de.jreality.math.Rn;
 import de.jreality.scene.Appearance;
+import de.jreality.scene.Scene;
 import de.jreality.scene.SceneGraphComponent;
 import de.jreality.scene.Transformation;
 import de.jtem.discretegroup.core.AbstractDGSGR;
@@ -82,7 +83,8 @@ public class QuartzGroup {
 			L1Gens = new DiscreteGroupElement[3],
 			L2Gens = new DiscreteGroupElement[6],
 			L3Gens = new DiscreteGroupElement[2],
-			L3Gens1G = new DiscreteGroupElement[1];
+			L3Gens1G = new DiscreteGroupElement[1],
+			L2Huge, L2Big;
 	DiscreteGroupElement id, gen;
 	AbstractDGSGR  L0SGR, L1SGR, L2SGR, L3SGR;
 	AbstractDGSGR[] sgrList = new AbstractDGSGR[4];
@@ -95,7 +97,7 @@ public class QuartzGroup {
 	boolean showHalfTurn = true,
 			startBig = true,
 			zUpOnly = true,
-			toggleGroups = false;
+			useHugeGroup = false;
 	
 	AnimatedIsometry ai[] = new AnimatedIsometry[3];
 	
@@ -159,15 +161,22 @@ public class QuartzGroup {
 		L2G.setName("x-y alpha quartz group");
 
 //		bigC = new DiscreteGroupSimpleConstraint(7, 7, 1000);
-		bigC = new DiscreteGroupSimpleConstraint(6,6,500);
-		hugeC = new DiscreteGroupSimpleConstraint(10,10, 1500);
+		bigC = new DiscreteGroupSimpleConstraint(7,7,500);
+		hugeC = new DiscreteGroupSimpleConstraint(12,12, 1500);
 		bigC.setManhattan(true);
 				
+		L2G.setConstraint(hugeC);
+		L2G.update();
+		L2Huge = L2G.getElementList();
+		System.err.println("huge xy group # = "+L2G.getElementList().length);
+		
 		L2G.setConstraint(bigC);
 		L2G.update();
-		System.err.println("xy group # = "+L2G.getElementList().length);
+		L2Big = L2G.getElementList();
+		System.err.println("big xy group # = "+L2G.getElementList().length);
 
-		L2SGR = new DiscreteGroupSceneGraphRepresentation(L2G);
+		L2SGR = new SimpleDGSGR(); //DiscreteGroupSceneGraphRepresentation(L2G);
+		L2SGR.setElementList(L2Huge);
 		L2SGR.getRepresentationRoot().setName("Level 2");
 		pruneCL2 = new DiscreteGroupSimpleConstraint(maxD, maxL, numEl);
 		L2SGR.setConstraint(pruneCL2);
@@ -189,7 +198,7 @@ public class QuartzGroup {
 		L3G.setConstraint(groupCL3);
 		L3G.update();
 		DiscreteGroupElement[] els = L3G.getElementList();
-		System.err.println("z group # = "+els.length);
+		System.err.println("full z group # = "+els.length);
 //		for (int i = 0; i<els.length; ++i) {
 //			System.err.println("dge word = "+els[i].getWord());
 //		}
@@ -371,6 +380,7 @@ public class QuartzGroup {
 				numEl = cSlider.getValue().intValue();
 				pruneCL2.setMaxNumberElements(numEl);
 				L2SGR.setConstraint(pruneCL2);
+				System.err.println("L2SGR # = "+L2SGR.getElementList().length);
 			}
 		});
 		vbox.add(cSlider);
@@ -400,24 +410,35 @@ public class QuartzGroup {
 				L3G.update();
 				L3SGR.setElementList(L3G.getElementList());
 				L3SGR.update();
+				System.err.println("L3SGR # = "+L3SGR.getElementList().length);
 			}
 		});
 		hbox.add(jb);
-		final JCheckBox tgb = new JCheckBox("toggle xy groups");
-		tgb.setSelected(toggleGroups);
+		final JCheckBox tgb = new JCheckBox("use huge XY group");
+		tgb.setSelected(useHugeGroup);
 		tgb.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				toggleGroups = tgb.isSelected();
-				L2G.setConstraint( toggleGroups ? hugeC : bigC);
+				useHugeGroup = tgb.isSelected();
 				int oldN = L2G.getElementList().length;
-				L2G.generateElements();
-				L2SGR.setElementList(L2G.getElementList());
-				L2SGR.setConstraint(pruneCL3);
-				System.err.println("old, new size: "+oldN+" "+L2SGR.getElementList().length);
+//				L2G.setElementList(useHugeGroup ? L2Huge : L2Big, false);
+//				L2G.update();
+				DiscreteGroupElement[] dge = useHugeGroup ? L2Huge : L2Big;
+				L2SGR.setElementList(dge);
+//				Scene.executeWriter(L2SGR.getRepresentationRoot(), new Runnable() {
+//
+//					@Override
+//					public void run() {
+//						L2SGR.update();
+//					}
+//				
+//				});
+				L2SGR.setConstraint(pruneCL2);
+				System.err.println("old, new L2G size: "+oldN+" "+dge.length);
+				System.err.println("L2SGR size: "+L2SGR.getElementList().length);
 			}
 		});
-		hbox.add(tgb);
+//		hbox.add(tgb);
 
 		return container;
 	}

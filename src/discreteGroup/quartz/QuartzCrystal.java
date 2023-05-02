@@ -113,7 +113,8 @@ public class QuartzCrystal extends Assignment {
 			showBAS = false,
 			doSliceBox = false,
 			doTessellatedContent = false,
-			doHalfTetra = false;
+			doHalfTetra = false,
+			doFog = true;
 	transient public QuartzGeometry quartzGeom = new QuartzGeometry(this);
 	transient public QuartzGroup quartzGroup = new QuartzGroup(this);
 	transient AbstractDGSGR[] sgrLevels = null;
@@ -335,8 +336,6 @@ public class QuartzCrystal extends Assignment {
 					chan1Timer.stop();
 				}
 			}
-			
-			
 		});
 		buttons.add(tcb);
 
@@ -360,6 +359,12 @@ public class QuartzCrystal extends Assignment {
 		Appearance rap = viewer.getSceneRoot().getAppearance();
 		rap.setAttribute(CommonAttributes.BACKGROUND_COLOR,new Color(51,51,51)); 
 		rap.setAttribute(CommonAttributes.TUBE_RADIUS, .01);
+
+		rap.setAttribute(CommonAttributes.FOG_MODE,1);
+		rap.setAttribute(CommonAttributes.FOG_BEGIN, 2.0);
+		rap.setAttribute(CommonAttributes.FOG_END, 6.0);
+		rap.setAttribute(CommonAttributes.FOG_DENSITY, .03);
+		rap.setAttribute(CommonAttributes.FOG_COLOR, new Color(51,51,51));
 		updateFog();
 		
 		// set near and far clipping plane
@@ -410,7 +415,7 @@ public class QuartzCrystal extends Assignment {
 				switch(e.getKeyCode())	{
 				
 				case KeyEvent.VK_1:
-					if ((m^1) == 0) axis31sgc.setVisible(!axis31sgc.isVisible());
+					if ((m&1) == 0) axis31sgc.setVisible(!axis31sgc.isVisible());
 					else axis32sgc.setVisible(!axis32sgc.isVisible());
 					break;
 				case KeyEvent.VK_2:
@@ -449,6 +454,7 @@ public class QuartzCrystal extends Assignment {
 					break;
 
 				case KeyEvent.VK_0:
+					doFog = !doFog;
 					updateFog();
 					break;
 
@@ -461,14 +467,9 @@ public class QuartzCrystal extends Assignment {
 	}
 
 	private void updateFog() {
-		Appearance rap = viewer.getSceneRoot().getAppearance();
-		rap.setAttribute(CommonAttributes.FOG_MODE,1);
-		rap.setAttribute(CommonAttributes.FOG_BEGIN, 2.0);
-		rap.setAttribute(CommonAttributes.FOG_END, 6.0);
-		rap.setAttribute(CommonAttributes.FOG_DENSITY, .03);
-		rap.setAttribute(CommonAttributes.FOG_COLOR, new Color(51,51,51));
-		rap.setAttribute(CommonAttributes.FOG_ENABLED, true);
+		viewer.getSceneRoot().getAppearance().setAttribute(CommonAttributes.FOG_ENABLED, doFog);
 	}
+	
 	private void printInfo() {
 		int total = 1;
 		int[] levels = new int[4];
@@ -514,8 +515,8 @@ public class QuartzCrystal extends Assignment {
 
 	private void updateCamera() {
 		Camera cam = CameraUtility.getCamera(viewer);
-		cam.setNear(.2);
-		cam.setFar(20.0);
+		cam.setNear(.1);
+		cam.setFar(10.0);
 	}
 	
 	boolean isCenterCam = false;

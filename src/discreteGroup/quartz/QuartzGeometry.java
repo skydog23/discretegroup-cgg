@@ -18,10 +18,12 @@ import static discreteGroup.quartz.QuartzConstants.vclrs;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
+import javax.swing.JCheckBox;
 import javax.swing.SwingConstants;
 
 import charlesgunn.util.TextSlider;
@@ -43,6 +45,12 @@ import de.jreality.scene.IndexedLineSet;
 import de.jreality.scene.SceneGraphComponent;
 import de.jreality.scene.data.Attribute;
 import de.jreality.shader.CommonAttributes;
+import de.jreality.shader.DefaultGeometryShader;
+import de.jreality.shader.DefaultLineShader;
+import de.jreality.shader.DefaultPointShader;
+import de.jreality.shader.DefaultPolygonShader;
+import de.jreality.shader.DefaultTextShader;
+import de.jreality.shader.ShaderUtility;
 import de.jreality.util.SceneGraphUtility;
 
 public class QuartzGeometry {
@@ -285,7 +293,9 @@ public class QuartzGeometry {
 			}
 		});
 //		container.add(ttSlider);
-		final TextSlider<Double> bsSlider = new TextSlider.Double("ball-stick scale",  SwingConstants.HORIZONTAL, 0, 4.0, basScale);
+		Box hbox = Box.createHorizontalBox();
+		container.add(hbox);
+		final TextSlider<Double> bsSlider = new TextSlider.Double("atom scale",  SwingConstants.HORIZONTAL, 0, 4.0, basScale);
 		bsSlider.addActionListener(new ActionListener() {
 			
 			@Override
@@ -294,30 +304,46 @@ public class QuartzGeometry {
 				updateBallAndStick();				
 			}
 		});
-		container.add(bsSlider);
+		hbox.add(bsSlider);
+		
+		final JCheckBox lcb = new JCheckBox("Show labels");
+		lcb.setSelected(showLabels);
+		lcb.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showLabels = lcb.isSelected();
+				SiO4sgc.getAppearance().setAttribute(CommonAttributes.SHOW_LABELS, showLabels);
+			}
+		});
+		hbox.add(lcb);
+
+		
 		return container;
 	}
-	
+	 boolean showLabels = true;
 	 protected Color[] pointClr = {siliconColor, oxygenColor, oxygenColor, oxygenColor, oxygenColor},
 			 edgeClr = {chan31Color, chan31Color, chan32Color, chan32Color};
 	 protected double[][] baspts = {{0,0,0}, { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 }  };
+	 protected String[] vertexLabels = {"Si","O","O","O","O"};
 	 protected int[][] basIndices =  {{0,1},{0,2},{0,3},{0,4}};
 	 protected double[] pointRadii = {siliconRad, oxygenRad, oxygenRad, oxygenRad, oxygenRad};
 	 BallAndStickFactory basf  = null;
-	IndexedLineSetFactory ilsf = new IndexedLineSetFactory();
-	SceneGraphComponent ilssgc = SceneGraphUtility.createFullSceneGraphComponent();
+	IndexedLineSetFactory SiO4ilsf = new IndexedLineSetFactory();
+	SceneGraphComponent SiO4sgc = SceneGraphUtility.createFullSceneGraphComponent();
 	boolean doBAS = false;
 	 public SceneGraphComponent getBallAndStick()	{
-		ilsf.setVertexCount(5);
-		ilsf.setEdgeCount(4);
-		ilsf.setVertexCoordinates(baspts);
-		ilsf.setEdgeIndices(basIndices);
-		ilsf.setEdgeColors(edgeClr);
-		ilsf.setVertexColors(pointClr);
-		ilsf.setVertexAttribute(Attribute.RELATIVE_RADII, Rn.times(null, basScale, pointRadii));
-		ilsf.setVertexAttribute(Attribute.POINT_SIZE, Rn.times(null, basScale, pointRadii));
-		ilsf.update();
-		IndexedLineSet ils = ilsf.getIndexedLineSet();
+		SiO4ilsf.setVertexCount(5);
+		SiO4ilsf.setEdgeCount(4);
+		SiO4ilsf.setVertexCoordinates(baspts);
+		SiO4ilsf.setVertexLabels(vertexLabels);
+		SiO4ilsf.setEdgeIndices(basIndices);
+		SiO4ilsf.setEdgeColors(edgeClr);
+		SiO4ilsf.setVertexColors(pointClr);
+		SiO4ilsf.setVertexAttribute(Attribute.RELATIVE_RADII, Rn.times(null, basScale, pointRadii));
+		SiO4ilsf.setVertexAttribute(Attribute.POINT_SIZE, Rn.times(null, basScale, pointRadii));
+		SiO4ilsf.update();
+		IndexedLineSet ils = SiO4ilsf.getIndexedLineSet();
 		SceneGraphComponent ret = null;
 		if (doBAS) {
 			if (basf == null) basf = new BallAndStickFactory(ils);
@@ -329,20 +355,30 @@ public class QuartzGeometry {
 			basf.update();
 			ret = basf.getSceneGraphComponent();			
 		} else {
-			Appearance ap = ilssgc.getAppearance();
+			Appearance ap = SiO4sgc.getAppearance();
 			ap.setAttribute(CommonAttributes.VERTEX_DRAW,true);
+			ap.setAttribute(CommonAttributes.SHOW_LABELS, showLabels);
+		    DefaultGeometryShader dgs = ShaderUtility.createDefaultGeometryShader(ap, false);
+//			dgs.setShowPoints(true);
+		    DefaultTextShader pts = (DefaultTextShader) ((DefaultPointShader)dgs.getPointShader()).getTextShader();
+		    pts.setDiffuseColor(new Color(153,255,153));
+		    pts.setScale(.0025);
+		    pts.setOffset( new double[] {.0,.04,.2});
+		    pts.setAlignment(SwingConstants.NORTH_EAST);
+		    Font f = new Font("Arial Bold", Font.ITALIC, 48);
+		    pts.setFont(f);
 			updateBallAndStick();
-			ilssgc.setGeometry(ilsf.getIndexedLineSet());
-			ret =  ilssgc;
+			SiO4sgc.setGeometry(SiO4ilsf.getIndexedLineSet());
+			ret =  SiO4sgc;
 		}
 		return ret;
 	}
 	
 	private void updateBallAndStick() {
-		ilsf.setVertexAttribute(Attribute.POINT_SIZE, Rn.times(null, basScale, pointRadii));
-		ilsf.setVertexAttribute(Attribute.RELATIVE_RADII, Rn.times(null, basScale, pointRadii));
-		ilsf.update();
-		Appearance ap = ilssgc.getAppearance();
+		SiO4ilsf.setVertexAttribute(Attribute.POINT_SIZE, Rn.times(null, basScale, pointRadii));
+		SiO4ilsf.setVertexAttribute(Attribute.RELATIVE_RADII, Rn.times(null, basScale, pointRadii));
+		SiO4ilsf.update();
+		Appearance ap = SiO4sgc.getAppearance();
 		ap.setAttribute("lineShader."+CommonAttributes.TUBE_RADIUS, basScale*stickRad);
 		ap.setAttribute("pointShader."+CommonAttributes.POINT_RADIUS, 1.0);
 		if (doBAS) {
