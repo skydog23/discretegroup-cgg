@@ -6,15 +6,19 @@ TODO:
     add an animated point/sphere that moves along the spiral curves
         at unit speed -- this shows that the two 3-fold channels are 
         polar to each other
-    animate the 3-fold generators
     add the sodium chloride crystal as an example of a mirror group
         and contrast to quartz
     use clipping planes to slice through the structure
-    saturate the axis colors to make them brighter
     control all the tetra edges and colors separately in GUI
     Refine the center camera command to be more surgical
+8.5.23
+    create 2 cameras, one for outside looking and one for flying inside
+    use only one camera path, toggle between the two cameras and the avatar transformation
+        (I'm uneasy about animating with two different camera paths)
     
  DONE
+    de-saturated the axis colors to make them brighter
+    animated the 3-fold generators
  26.04.23
     created SimpleDGSGR and AbstractDGSGR classes to provide light-weight scene graphs
     added a constraint to the DGSGR that allows SGC's to be selectively turned on and off
@@ -31,9 +35,7 @@ TODO:
  */
 package discreteGroup.quartz;
 
-import static de.jreality.shader.CommonAttributes.LINE_SHADER;
-import static de.jreality.shader.CommonAttributes.POINT_SHADER;
-import static de.jreality.shader.CommonAttributes.RADII_WORLD_COORDINATES;
+import static de.jreality.util.SystemProperties.JREALITY_DATA;
 import static discreteGroup.quartz.QuartzConstants.axis3Pts;
 
 import java.awt.Color;
@@ -42,7 +44,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JCheckBox;
@@ -50,24 +51,14 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import charlesgunn.anim.jreality.SceneGraphAnimator;
-import charlesgunn.anim.plugin.AnimationPlugin;
 import charlesgunn.jreality.newtools.FlyTool;
-import charlesgunn.jreality.plugin.TermesSpherePlugin;
 import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.BoundingBoxUtility;
 import de.jreality.geometry.SliceBoxFactory;
-import de.jreality.geometry.TubeUtility;
 import de.jreality.math.Matrix;
 import de.jreality.math.MatrixBuilder;
 import de.jreality.math.Rn;
-import de.jreality.plugin.JRViewer;
-import de.jreality.plugin.basic.Scene;
-import de.jreality.plugin.basic.Shell;
-import de.jreality.plugin.basic.ViewPreferences;
-import de.jreality.plugin.content.CenteredAndScaledContent;
-import de.jreality.plugin.content.ContentLoader;
-import de.jreality.plugin.experimental.ViewerKeyListenerPlugin;
 import de.jreality.scene.Appearance;
 import de.jreality.scene.Camera;
 import de.jreality.scene.DirectionalLight;
@@ -79,7 +70,6 @@ import de.jreality.shader.CommonAttributes;
 import de.jreality.shader.DefaultGeometryShader;
 import de.jreality.shader.ImplodePolygonShader;
 import de.jreality.shader.ShaderUtility;
-import de.jreality.shader.TwoSidePolygonShader;
 import de.jreality.tools.ClickWheelCameraZoomTool;
 import de.jreality.util.CameraUtility;
 import de.jreality.util.Rectangle3D;
@@ -87,9 +77,8 @@ import de.jreality.util.SceneGraphUtility;
 import de.jreality.util.Secure;
 import de.jreality.util.SystemProperties;
 import de.jtem.discretegroup.core.AbstractDGSGR;
-import de.jtem.discretegroup.plugin.FogPlugin;
-import de.jtem.discretegroup.plugin.TessellatedContent;
-import de.jtem.jrworkspace.plugin.Plugin;
+import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
+import de.jtem.discretegroup.core.DiscreteGroupSimpleConstraint;
 
 public class QuartzCrystal extends Assignment {
 
@@ -112,18 +101,22 @@ public class QuartzCrystal extends Assignment {
 			showTetra = true,
 			showBAS = false,
 			doSliceBox = false,
-			doTessellatedContent = false,
 			doHalfTetra = false,
-			doFog = true;
+			doFog = true,
+			doCutoff = true,
+			doDiamond = true;
 	transient public QuartzGeometry quartzGeom = new QuartzGeometry(this);
 	transient public QuartzGroup quartzGroup = new QuartzGroup(this);
+	DiamondCrystal diamcry = new DiamondCrystal(this);
+	LightUtility lu = new LightUtility();
+
 	transient AbstractDGSGR[] sgrLevels = null;
+	transient DiscreteGroupSceneGraphRepresentation diamondDGSGR = null;
 	transient protected Transformation avatarT;
 	transient protected ImplodePolygonShader implodeShader = null;
 	transient double implodeFactor = .35,
 			lightIntensity = .35;
 	transient SliceBoxFactory sbf;	
-	transient TessellatedContent tessellatedContent = new TessellatedContent();
 	transient Camera centerCam = new Camera();
 	transient SceneGraphPath centerCamSGP, standardCamSGP, path2World;
 	
@@ -134,7 +127,7 @@ public class QuartzCrystal extends Assignment {
 		sgrLevels = quartzGroup.getLevels();
 		
 		tetrasgc.setVisible(showTetra);
-		bassgc.addChild(quartzGeom.getBallAndStick());
+		bassgc.addChild(quartzGeom.getBASTetrahedron().getBallAndStick());
 		bassgc.setVisible(showBAS);
 		Appearance ap  = tetrasgc.getAppearance();
 		DefaultGeometryShader dgs = (DefaultGeometryShader) 
@@ -188,13 +181,17 @@ public class QuartzCrystal extends Assignment {
 
 //		sgrLevels[1].getFundamentalRegion().addChild(sgrLevels[0].getRepresentationRoot());
 		sgrLevels[1].getFundamentalRegion().addChildren(tetraGeomSGC, tetraHalfGeomSGC);
-		sgrLevels[2].getFundamentalRegion().addChildren(axis3sgc);
-		sgrLevels[2].getFundamentalRegion().addChildren(axis6sgc);
-		sgrLevels[2].getFundamentalRegion().addChildren(sgrLevels[1].getRepresentationRoot(), celloutlinesgc);
+		sgrLevels[2].getFundamentalRegion().addChildren(axis3sgc, axis6sgc, celloutlinesgc, sgrLevels[1].getRepresentationRoot());
+		sgrLevels[4].getFundamentalRegion().addChildren(axis3sgc, axis6sgc, celloutlinesgc, sgrLevels[1].getRepresentationRoot());
 		sgrLevels[3].getFundamentalRegion().addChild(sgrLevels[2].getRepresentationRoot());
 		sgrLevels[0].getFundamentalRegion().addChildren(sgrLevels[3].getRepresentationRoot());
 
-		world.addChildren(sgrLevels[0].getRepresentationRoot());
+		world.addChild(sgrLevels[0].getRepresentationRoot());
+		diamcry.getContent();
+		diamondDGSGR = diamcry.getDGSGR();
+		diamondDGSGR.getRepresentationRoot().setVisible(doDiamond);
+		sgrLevels[0].getRepresentationRoot().setVisible(!doDiamond);
+		world.addChild(diamondDGSGR.getRepresentationRoot());
 		
 		setupTimers();
 		
@@ -230,71 +227,8 @@ public class QuartzCrystal extends Assignment {
 
 	}
 	
-	protected transient SceneGraphComponent lights = new SceneGraphComponent("lights");
-	
-	protected transient double[][] positions = { {-1,-1,-1}, {-.1, 1, .2},{1, .3, -.1}, {.2, -.1, 1}}; //, 
-//	{1,1,1}, {1,-1,-1},{-1,1,-1}, {-1,-1,1}}; //{ {-1,-1,-1}, {-.3, 1, .2},{1, .3, -.4}, {.2, -.4, 1}};
-	protected transient double intensity = .5;
-    protected Light[] lightL = new Light[positions.length]
-    		;
-	public void setLightIntensity(double i) {
-		intensity = i;
-		setupLights();
-	}
-
-	public void setupLights()	{
-
-		if (lights == null)
-			lights = new SceneGraphComponent("Euclidean Lights");
-		for (int i = 0; i < positions.length; ++i) {
-			SceneGraphComponent lightNode = new SceneGraphComponent("light" + i);
-			DirectionalLight light = new DirectionalLight();
-			lightL[i] = light;
-			light.setIntensity(intensity);
-			lightNode.setLight(light);
-			MatrixBuilder.euclidean().rotateFromTo(new double[] { 0, 0, 1 }, positions[i]).assignTo(lightNode);
-			lights.addChild(lightNode);
-		}
-	}
-
-	public void updateLights(double intensity) {
-		if (lightL == null) return;
-		for (int i = 0; i<lightL.length; ++i)
-			lightL[i].setIntensity(intensity);
-		scene.getAvatarComponent().removeChild(lights);
-		scene.getAvatarComponent().addChildren(lights);
-
-	}
-	
-	@Override
-	public void setupJRViewer(JRViewer v) {
-		if (doTessellatedContent) tessellatedContent.setupJRViewer(v);
-		super.setupJRViewer(v);
-	}
-
-	@Override
-	public List<Plugin> getPluginsToRegister()	{
-		FogPlugin fp = new FogPlugin();
-		if (!doTessellatedContent) {
-			fp.setDensity(.00);
-			pluginsToLoad.add(fp);
-			pluginsToLoad.add(new Scene());
-			return super.getPluginsToRegister();
-		}
-		pluginsToLoad.add(new Shell());
-//		pluginsToLoad.add(contentPlugin);
-//		pluginsToLoad.add(new ContentTools());
-		pluginsToLoad.add(new ContentLoader());
-		pluginsToLoad.add(new ViewPreferences());
-		animationPlugin = new AnimationPlugin();
-		pluginsToLoad.add(animationPlugin);
-		pluginsToLoad.add(new ViewerKeyListenerPlugin());
-		pluginsToLoad.add(shrinkPanelPlugin);
-		pluginsToLoad.add(new TermesSpherePlugin());
-		pluginsToLoad.add(tessellatedContent);
-		pluginsToLoad.add(fp);
-		return pluginsToLoad;
-	}
+	DiscreteGroupSimpleConstraint singleton = new DiscreteGroupSimpleConstraint(1),
+			oldConstraint = null;
 
 
 	@Override
@@ -317,7 +251,7 @@ public class QuartzCrystal extends Assignment {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				lightIntensity = liSlider.getValue().doubleValue();
-				updateLights(lightIntensity);
+				lu.updateLights(lightIntensity, scene);
 			}
 		});
 		container.add(liSlider);
@@ -339,8 +273,28 @@ public class QuartzCrystal extends Assignment {
 		});
 		buttons.add(tcb);
 
+		final JCheckBox dcb = new JCheckBox("Show diamond crystal");
+		dcb.setSelected(doDiamond);
+		dcb.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doDiamond = dcb.isSelected();
+				diamondDGSGR.getRepresentationRoot().setVisible(doDiamond);
+				sgrLevels[0].getRepresentationRoot().setVisible(!doDiamond);
+				quartzGeom.getInspector().setVisible(!doDiamond);
+				quartzGroup.getInspector().setVisible(!doDiamond);
+				diamcry.getInspector().setVisible(doDiamond);				
+			}
+		});
+		buttons.add(dcb);
+
 		inspector.add(quartzGeom.getInspector());
 		inspector.add(quartzGroup.getInspector());
+		inspector.add(diamcry.getInspector());
+		quartzGeom.getInspector().setVisible(!doDiamond);
+		quartzGroup.getInspector().setVisible(!doDiamond);
+		diamcry.getInspector().setVisible(doDiamond);
 		return inspector;
 	}
 
@@ -348,23 +302,23 @@ public class QuartzCrystal extends Assignment {
 
 	@Override
 	public void display() {
-		useContent = !doTessellatedContent;
 		super.display();
-		setLightIntensity(.35);
-		setupLights();
-		scene.getAvatarComponent().addChildren(lights);
-		camsgc.addChildren(lights);
+		lu.setLightIntensity(lightIntensity);
+		lu.setupLights();
+		scene.getAvatarComponent().addChildren(lu.getLights());
+		camsgc.addChildren(lu.getLights());
 
 		viewer = jrviewer.getViewer();
 		Appearance rap = viewer.getSceneRoot().getAppearance();
-		rap.setAttribute(CommonAttributes.BACKGROUND_COLOR,new Color(51,51,51)); 
+		Color bkgdclr = new Color(51,51,51);
+		rap.setAttribute(CommonAttributes.BACKGROUND_COLOR,bkgdclr); 
 		rap.setAttribute(CommonAttributes.TUBE_RADIUS, .01);
 
-		rap.setAttribute(CommonAttributes.FOG_MODE,1);
+		rap.setAttribute(CommonAttributes.FOG_MODE,2);
 		rap.setAttribute(CommonAttributes.FOG_BEGIN, 2.0);
 		rap.setAttribute(CommonAttributes.FOG_END, 6.0);
-		rap.setAttribute(CommonAttributes.FOG_DENSITY, .03);
-		rap.setAttribute(CommonAttributes.FOG_COLOR, new Color(51,51,51));
+		rap.setAttribute(CommonAttributes.FOG_DENSITY, .25);
+		rap.setAttribute(CommonAttributes.FOG_COLOR, bkgdclr);
 		updateFog();
 		
 		// set near and far clipping plane
@@ -390,24 +344,12 @@ public class QuartzCrystal extends Assignment {
 		animationPlugin.setAnimateSceneGraph(true);
 		animationPlugin.getAnimationPanel().getRecordPrefs().setCurrentDirectoryPath("/Volumes/SamsungSSD1T/gunn_local/Movies/quartz/");
 		animationPlugin.getAnimationPanel().setResourceDir("src/discretegroup/quartz/");
-//		if (doTessellatedContent) {
-//			getContent();
-//			tessellatedContent.setMasterConstraint(new DiscreteGroupSimpleConstraint(4,4,100));
-//			tessellatedContent.setLightIntensity(.25);
-//			tessellatedContent.setFollowsCamera(false);
-//			tessellatedContent.setClipToCamera(true);
-//			tessellatedContent.setGroup(quartzGroup.getSpaceGroup(true), true);
-//			tessellatedContent.setContent(sixRep.getRepresentationRoot());
-//			tessellatedContent.getTheRepn().update();
-//		} else {
-//			FlyTool flytool;
-			SceneGraphPath avatarPath;
-			avatarPath = scene.getAvatarPath();
-			avatarT = avatarPath.getLastComponent().getTransformation();
-			flytool = new FlyTool();
-			flytool.setGain(.5);
-			avatarPath.getLastComponent().addTool(flytool);
-//		}
+		SceneGraphPath avatarPath;
+		avatarPath = scene.getAvatarPath();
+		avatarT = avatarPath.getLastComponent().getTransformation();
+		flytool = new FlyTool();
+		flytool.setGain(.5);
+		avatarPath.getLastComponent().addTool(flytool);
 		((Component) viewer.getViewingComponent()).addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e)	{ 
 				int m = e.getModifiers();
@@ -424,6 +366,7 @@ public class QuartzCrystal extends Assignment {
 				case KeyEvent.VK_3:
 					showRhomb = !showRhomb;
 					celloutlinesgc.setVisible(showRhomb);
+					diamcry.getUnitcell().setVisible(showRhomb);
 					break;
 					
 				case KeyEvent.VK_4:
@@ -445,8 +388,10 @@ public class QuartzCrystal extends Assignment {
 					break;
 					
 				case KeyEvent.VK_8:
-					doHalfTetra = !doHalfTetra;
-					setDoHalfTetra(doHalfTetra);
+//					doHalfTetra = !doHalfTetra;
+//					setDoHalfTetra(doHalfTetra);
+					doCutoff = !doCutoff;
+					diamondDGSGR.getDropBox().setCutoff(doCutoff ? 300 : -1);
 					break;
 
 				case KeyEvent.VK_9:
@@ -515,8 +460,10 @@ public class QuartzCrystal extends Assignment {
 
 	private void updateCamera() {
 		Camera cam = CameraUtility.getCamera(viewer);
-		cam.setNear(.1);
-		cam.setFar(10.0);
+		cam.setNear(.05);
+		cam.setFar(20.0);
+		cam.setEyeSeparation(.05);
+		cam.setFocus(2.5);
 	}
 	
 	boolean isCenterCam = false;
@@ -540,6 +487,7 @@ public class QuartzCrystal extends Assignment {
 
 	public static void main(String[] args) {
 		Secure.setProperty(SystemProperties.JOGL_COPY_CAT, "true");
+		Secure.setProperty(JREALITY_DATA, "/Volumes/SamsungSST1T/gunn_local/Movies/quartz/images/");;
 		new QuartzCrystal().display();
 
 	}

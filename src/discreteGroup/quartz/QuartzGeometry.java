@@ -5,68 +5,39 @@
 package discreteGroup.quartz;
 
 import static discreteGroup.quartz.QuartzConstants.axis3Pts;
-import static discreteGroup.quartz.QuartzConstants.basScale;
-import static discreteGroup.quartz.QuartzConstants.chan31Color;
-import static discreteGroup.quartz.QuartzConstants.chan32Color;
-import static discreteGroup.quartz.QuartzConstants.oxygenColor;
-import static discreteGroup.quartz.QuartzConstants.oxygenRad;
-import static discreteGroup.quartz.QuartzConstants.siliconColor;
-import static discreteGroup.quartz.QuartzConstants.siliconRad;
-import static discreteGroup.quartz.QuartzConstants.sq3;
-import static discreteGroup.quartz.QuartzConstants.stickRad;
 import static discreteGroup.quartz.QuartzConstants.vclrs;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
-import javax.swing.JCheckBox;
 import javax.swing.SwingConstants;
 
 import charlesgunn.util.TextSlider;
-import de.jreality.geometry.BallAndStickFactory;
-import de.jreality.geometry.GeometryUtility;
 import de.jreality.geometry.IndexedFaceSetFactory;
 import de.jreality.geometry.IndexedLineSetFactory;
 import de.jreality.geometry.IndexedLineSetUtility;
-import de.jreality.geometry.PolygonalTubeFactory;
-import de.jreality.geometry.TubeUtility;
 import de.jreality.math.Matrix;
 import de.jreality.math.MatrixBuilder;
-import de.jreality.math.Pn;
 import de.jreality.math.Rn;
-import de.jreality.scene.Appearance;
 import de.jreality.scene.Geometry;
-import de.jreality.scene.IndexedFaceSet;
 import de.jreality.scene.IndexedLineSet;
-import de.jreality.scene.SceneGraphComponent;
-import de.jreality.scene.data.Attribute;
-import de.jreality.shader.CommonAttributes;
-import de.jreality.shader.DefaultGeometryShader;
-import de.jreality.shader.DefaultLineShader;
-import de.jreality.shader.DefaultPointShader;
-import de.jreality.shader.DefaultPolygonShader;
-import de.jreality.shader.DefaultTextShader;
-import de.jreality.shader.ShaderUtility;
-import de.jreality.util.SceneGraphUtility;
 
 public class QuartzGeometry {
 
 
-	protected double[][] tetpts = { { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 } };
+	protected static double[][] tetpts = { { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 } };
 
-	protected int[][] tetrahedronIndices = { { 0, 1, 2 }, { 2, 1, 3 }, { 1, 0, 3 }, { 0, 2, 3 } };
-	static private int[][] edgeIndices = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
-	protected int[][] edgeIndices4 = { { 0, 1 }, { 0, 2 }, { 1, 3 }, { 2, 3 } };
+	protected static int[][] tetrahedronIndices = { { 0, 1, 2 }, { 2, 1, 3 }, { 1, 0, 3 }, { 0, 2, 3 } };
+	protected static int[][] edgeIndices = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
+	protected static int[][] edgeIndices4 = { { 0, 1 }, { 0, 2 }, { 1, 3 }, { 2, 3 } };
 
-	protected double[][] halftetpts = { { 1, 1, 1 }, { 1, -1, -1 }, {0,1,0},{0,0,1},{0,-1,0},{0,0,-1}};
+	protected static double[][] halftetpts = { { 1, 1, 1 }, { 1, -1, -1 }, {0,1,0},{0,0,1},{0,-1,0},{0,0,-1}};
 
-	protected int[][] halftetrahedronIndices = { { 0, 1, 5, 2 }, { 0, 2, 3 }, { 0,3,4,1 }, { 1,4,5 } };
+	protected static int[][] halftetrahedronIndices = { { 0, 1, 5, 2 }, { 0, 2, 3 }, { 0,3,4,1 }, { 1,4,5 } };
 	static private int[][] halfedgeIndices = { { 0, 1 }, {1,5},  { 0, 2 }, { 0, 3 }, {1,4} };
-	protected int[][] halfedgeIndices4 = { { 0, 1 }, { 0, 2 }, { 1,3} };
+	protected static int[][] halfedgeIndices4 = { { 0, 1 }, { 0, 2 }, { 1,3} };
 
 	double sq3 = QuartzConstants.sq3;
 
@@ -79,6 +50,7 @@ public class QuartzGeometry {
 			screw3[] = new Matrix[3];
 	
 	QuartzCrystal owner;
+	BASTetrahedron basTetra = new QuartzBASTetrahedron();
 	boolean showFaceColors = true;
 	
 	QuartzGeometry(QuartzCrystal owner)	{
@@ -86,7 +58,11 @@ public class QuartzGeometry {
 		this.owner = owner;
 	}
 	
-	protected  Geometry getTetrahedron() {
+	protected static Geometry getTetrahedron() {
+		return getTetrahedron(true);
+	}
+	
+	protected static Geometry getTetrahedron(boolean fc) {
 		IndexedFaceSetFactory ifsf = new IndexedFaceSetFactory();
 		ifsf.setVertexCount(4);
 		ifsf.setEdgeCount(edgeIndices4.length);
@@ -96,7 +72,7 @@ public class QuartzGeometry {
 		ifsf.setEdgeIndices(edgeIndices4);
 		ifsf.setEdgeColors(QuartzConstants.eclrs4);
 		ifsf.setFaceIndices(tetrahedronIndices);
-		if (showFaceColors) ifsf.setFaceColors(QuartzConstants.fclrs);
+		if (fc) ifsf.setFaceColors(QuartzConstants.fclrs);
 		ifsf.setGenerateFaceNormals(true);
 		ifsf.update();
 		return ifsf.getIndexedFaceSet();
@@ -117,6 +93,9 @@ public class QuartzGeometry {
 		return ifsf.getIndexedFaceSet();
 	}
 	
+	protected BASTetrahedron getBASTetrahedron() {
+		return basTetra;
+	}
 	IndexedLineSetFactory cellILSF;
 
 	public IndexedLineSet getCellOutline() {
@@ -261,8 +240,11 @@ public class QuartzGeometry {
 		return IndexedLineSetUtility.createCurveFromPoints(axis, false);
 	}
 	
+	Box inspector = null;
 	public Component getInspector() {
-		Box container = Box.createVerticalBox();
+		if (inspector == null) {
+			inspector = Box.createVerticalBox();	
+		} else return inspector;
 		final TextSlider<Double> tsSlider = new TextSlider.Double("tetra scale",  SwingConstants.HORIZONTAL,0.0, .3, tetraScale);
 		tsSlider.addActionListener(new ActionListener() {
 			
@@ -282,7 +264,7 @@ public class QuartzGeometry {
 				owner.updateTetras();	
 			}
 		});
-		container.add(taSlider);
+		inspector.add(taSlider);
 		final TextSlider<Double> ttSlider = new TextSlider.Double("tetra y-tlate",  SwingConstants.HORIZONTAL, -.5, .5, tetraYTlate);
 		ttSlider.addActionListener(new ActionListener() {
 			
@@ -293,98 +275,10 @@ public class QuartzGeometry {
 			}
 		});
 //		container.add(ttSlider);
-		Box hbox = Box.createHorizontalBox();
-		container.add(hbox);
-		final TextSlider<Double> bsSlider = new TextSlider.Double("atom scale",  SwingConstants.HORIZONTAL, 0, 4.0, basScale);
-		bsSlider.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				basScale = bsSlider.getValue().doubleValue();
-				updateBallAndStick();				
-			}
-		});
-		hbox.add(bsSlider);
 		
-		final JCheckBox lcb = new JCheckBox("Show labels");
-		lcb.setSelected(showLabels);
-		lcb.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				showLabels = lcb.isSelected();
-				SiO4sgc.getAppearance().setAttribute(CommonAttributes.SHOW_LABELS, showLabels);
-			}
-		});
-		hbox.add(lcb);
-
+		inspector.add(basTetra.getInspector());
 		
-		return container;
-	}
-	 boolean showLabels = true;
-	 protected Color[] pointClr = {siliconColor, oxygenColor, oxygenColor, oxygenColor, oxygenColor},
-			 edgeClr = {chan31Color, chan31Color, chan32Color, chan32Color};
-	 protected double[][] baspts = {{0,0,0}, { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 }  };
-	 protected String[] vertexLabels = {"Si","O","O","O","O"};
-	 protected int[][] basIndices =  {{0,1},{0,2},{0,3},{0,4}};
-	 protected double[] pointRadii = {siliconRad, oxygenRad, oxygenRad, oxygenRad, oxygenRad};
-	 BallAndStickFactory basf  = null;
-	IndexedLineSetFactory SiO4ilsf = new IndexedLineSetFactory();
-	SceneGraphComponent SiO4sgc = SceneGraphUtility.createFullSceneGraphComponent();
-	boolean doBAS = false;
-	 public SceneGraphComponent getBallAndStick()	{
-		SiO4ilsf.setVertexCount(5);
-		SiO4ilsf.setEdgeCount(4);
-		SiO4ilsf.setVertexCoordinates(baspts);
-		SiO4ilsf.setVertexLabels(vertexLabels);
-		SiO4ilsf.setEdgeIndices(basIndices);
-		SiO4ilsf.setEdgeColors(edgeClr);
-		SiO4ilsf.setVertexColors(pointClr);
-		SiO4ilsf.setVertexAttribute(Attribute.RELATIVE_RADII, Rn.times(null, basScale, pointRadii));
-		SiO4ilsf.setVertexAttribute(Attribute.POINT_SIZE, Rn.times(null, basScale, pointRadii));
-		SiO4ilsf.update();
-		IndexedLineSet ils = SiO4ilsf.getIndexedLineSet();
-		SceneGraphComponent ret = null;
-		if (doBAS) {
-			if (basf == null) basf = new BallAndStickFactory(ils);
-			basf.setRealSpheres(true);
-			basf.setShowBalls(true);
-			basf.setShowSticks(true);
-			basf.setStickColor(Color.lightGray);
-			basf.setStickRadius(basScale*QuartzConstants.siliconRad);
-			basf.update();
-			ret = basf.getSceneGraphComponent();			
-		} else {
-			Appearance ap = SiO4sgc.getAppearance();
-			ap.setAttribute(CommonAttributes.VERTEX_DRAW,true);
-			ap.setAttribute(CommonAttributes.SHOW_LABELS, showLabels);
-		    DefaultGeometryShader dgs = ShaderUtility.createDefaultGeometryShader(ap, false);
-//			dgs.setShowPoints(true);
-		    DefaultTextShader pts = (DefaultTextShader) ((DefaultPointShader)dgs.getPointShader()).getTextShader();
-		    pts.setDiffuseColor(new Color(153,255,153));
-		    pts.setScale(.0025);
-		    pts.setOffset( new double[] {.0,.04,.2});
-		    pts.setAlignment(SwingConstants.NORTH_EAST);
-		    Font f = new Font("Arial Bold", Font.ITALIC, 48);
-		    pts.setFont(f);
-			updateBallAndStick();
-			SiO4sgc.setGeometry(SiO4ilsf.getIndexedLineSet());
-			ret =  SiO4sgc;
-		}
-		return ret;
-	}
-	
-	private void updateBallAndStick() {
-		SiO4ilsf.setVertexAttribute(Attribute.POINT_SIZE, Rn.times(null, basScale, pointRadii));
-		SiO4ilsf.setVertexAttribute(Attribute.RELATIVE_RADII, Rn.times(null, basScale, pointRadii));
-		SiO4ilsf.update();
-		Appearance ap = SiO4sgc.getAppearance();
-		ap.setAttribute("lineShader."+CommonAttributes.TUBE_RADIUS, basScale*stickRad);
-		ap.setAttribute("pointShader."+CommonAttributes.POINT_RADIUS, 1.0);
-		if (doBAS) {
-			basf.setStickRadius(basScale * stickRad);
-			basf.update();		
-		}
+		return inspector;
 	}
 
 }

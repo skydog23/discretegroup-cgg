@@ -40,35 +40,19 @@ import de.jreality.scene.Appearance;
 import de.jreality.scene.Scene;
 import de.jreality.scene.SceneGraphComponent;
 import de.jreality.scene.Transformation;
+import de.jtem.discretegroup.ResourceClass;
 import de.jtem.discretegroup.core.AbstractDGSGR;
 import de.jtem.discretegroup.core.DiscreteGroup;
 import de.jtem.discretegroup.core.DiscreteGroupConstraint;
 import de.jtem.discretegroup.core.DiscreteGroupElement;
 import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
 import de.jtem.discretegroup.core.DiscreteGroupSimpleConstraint;
+import de.jtem.discretegroup.core.FiniteStateAutomaton;
+import de.jtem.discretegroup.core.SelectionDGSGR;
 import de.jtem.discretegroup.core.SimpleDGSGR;
 
 public class QuartzGroup {
 
-	{
-//		double sq3 = 1.0/Math.sqrt(3);
-//		double[] zDir = {0,0,1,0},
-//				C1 = {1.0/3.0, 0, 0, 1},
-//				C2 = {0, sq3, 0, 1};
-//		screw33[0] = new Matrix(P3.makeScrewMotionMatrix(null, C1, zDir, Math.PI/3.0, Pn.EUCLIDEAN));
-//		screw33[1] = new Matrix(P3.makeScrewMotionMatrix(null, C2, zDir, Math.PI/3.0, Pn.EUCLIDEAN));
-
-	}
-	/*
-	 * There are four levels of hierarchy here:
-	 *   0: order-2 rotation around the y-axis
-	 *   1: order-3 screw motion around the triangle channel vertical axis thru (1/3,0,0,1)
-	 *   2: order-3 screw motion around the hexagonal channel vertical axis through (0, .57..., 0, 1)
-	 *   3: translation group
-	 * The code refers to these levels with the prefixes L0, L1 L2, L3, resp..
-	 */
-//	DiscreteGroup L3G, L2G, L1G, L0G;
-//	DiscreteGroup[] grps = {L0G, L1G, L2G, L3G};
 	Matrix[]  L2M = new Matrix[3],
 			L1M = new Matrix[3], 
 			L0M = new Matrix[2];
@@ -78,26 +62,31 @@ public class QuartzGroup {
 	double c = 1.25;
 
 	DiscreteGroup L2G = new DiscreteGroup(),
-			L3G = new DiscreteGroup();
+			L3G = new DiscreteGroup(),
+			L23G = new DiscreteGroup();
 	DiscreteGroupElement[] L0Gens = new DiscreteGroupElement[2],
 			L1Gens = new DiscreteGroupElement[3],
 			L2Gens = new DiscreteGroupElement[6],
 			L3Gens = new DiscreteGroupElement[2],
+			L23Gens = new DiscreteGroupElement[6],
 			L3Gens1G = new DiscreteGroupElement[1],
-			L2Huge, L2Big;
+			L23Huge, L2Big, L23Small;
 	DiscreteGroupElement id, gen;
-	AbstractDGSGR  L0SGR, L1SGR, L2SGR, L3SGR;
-	AbstractDGSGR[] sgrList = new AbstractDGSGR[4];
-	DiscreteGroupSimpleConstraint bigC, hugeC, pruneCL2, pruneCL3;
+	AbstractDGSGR  L0SGR, L1SGR, L3SGR, L2OnlySGR;
+	DiscreteGroupSceneGraphRepresentation L23SGR;
+	SelectionDGSGR L2SGR;
+	AbstractDGSGR[] sgrList = new AbstractDGSGR[5];
+	DiscreteGroupSimpleConstraint smallC, bigC, hugeC, pruneCL2, pruneCL3;
 	ZConstraint  groupCL3;
 	
-	int maxL = 1, numEl = 7;
+	int maxL = 1, numEl = 7, l23cutoff = 200;
 	double maxD = -1;
 	
 	boolean showHalfTurn = true,
 			startBig = true,
 			zUpOnly = true,
-			useHugeGroup = false;
+			useHugeGroup = false,
+			useXYZGroup = false;
 	
 	AnimatedIsometry ai[] = new AnimatedIsometry[3];
 	
@@ -141,8 +130,8 @@ public class QuartzGroup {
 		L1SGR.update();
 
 		// translations in x-y plane
-		L2SGR = new SimpleDGSGR();
-		L2SGR.getRepresentationRoot().setName("Level 2");
+		L2OnlySGR = new SimpleDGSGR();
+		L2OnlySGR.getRepresentationRoot().setName("Level 2");
 
 		// split the translation group into two pieces, the x-y plane and the z-direction
 		String[] enames = {"a","b","c","d"};
@@ -162,26 +151,20 @@ public class QuartzGroup {
 
 //		bigC = new DiscreteGroupSimpleConstraint(7, 7, 1000);
 		bigC = new DiscreteGroupSimpleConstraint(7,7,500);
-		hugeC = new DiscreteGroupSimpleConstraint(12,12, 1500);
 		bigC.setManhattan(true);
-				
-		L2G.setConstraint(hugeC);
-		L2G.update();
-		L2Huge = L2G.getElementList();
-		System.err.println("huge xy group # = "+L2G.getElementList().length);
-		
+						
 		L2G.setConstraint(bigC);
 		L2G.update();
 		L2Big = L2G.getElementList();
 		System.err.println("big xy group # = "+L2G.getElementList().length);
 
-		L2SGR = new SimpleDGSGR(); //DiscreteGroupSceneGraphRepresentation(L2G);
-		L2SGR.setElementList(L2Huge);
-		L2SGR.getRepresentationRoot().setName("Level 2");
+		L2OnlySGR = new SimpleDGSGR(); //DiscreteGroupSceneGraphRepresentation(L2G);
+		L2OnlySGR.setElementList(L2Big);
+		L2OnlySGR.getRepresentationRoot().setName("Level 2");
 		pruneCL2 = new DiscreteGroupSimpleConstraint(maxD, maxL, numEl);
-		L2SGR.setConstraint(pruneCL2);
-		L2SGR.update();
-		System.err.println("xy DGSGR # = "+L2SGR.getElementList().length);
+		L2OnlySGR.setConstraint(pruneCL2);
+		L2OnlySGR.update();
+		System.err.println("xy DGSGR # = "+L2OnlySGR.getElementList().length);
 
 		// the highest level is the z-translation group
 		double[] ztranslate = MatrixBuilder.euclidean().translate(0,0, c).getArray();
@@ -210,7 +193,48 @@ public class QuartzGroup {
 		pruneCL3 = new DiscreteGroupSimpleConstraint(10,20, 1);
 		L3SGR.setConstraint(pruneCL3);
 
-		sgrList = new AbstractDGSGR[] {L0SGR, L1SGR, L2SGR, L3SGR};
+		L23Gens[0] = L2Gens[0];
+		L23Gens[1] = L2Gens[1];
+		L23Gens[3] = L2Gens[3];
+		L23Gens[4] = L2Gens[4];
+		L23Gens[2] = new DiscreteGroupElement(Pn.EUCLIDEAN, ztranslate, "c");
+		L23Gens[5] = L23Gens[2].getInverse();
+		L23G.setGenerators( L23Gens);
+		L23G.setDimension(3);
+		L23G.setMetric(Pn.EUCLIDEAN);
+		L23G.setFinite(false);
+		FiniteStateAutomaton fsa = FiniteStateAutomaton.fsaForName("c1.wa", ResourceClass.class);
+		L23G.setFsa(fsa);
+
+		L23G.setName("xyz alpha quartz group");
+
+
+		smallC = new DiscreteGroupSimpleConstraint(-1,-1,50);
+		L23G.setConstraint(smallC);
+		L23G.update();
+		L23Small = L2G.getElementList();
+		
+		System.err.println("small xy group # = "+L2G.getElementList().length);
+		hugeC = new DiscreteGroupSimpleConstraint(16,-1,15000);
+		L23G.setConstraint(hugeC);
+		L23G.update();
+		System.err.println("xyz DG # = "+L23G.getElementList().length);
+
+		L23SGR = new DiscreteGroupSceneGraphRepresentation(L23G, true);
+		L23SGR.getRepresentationRoot().setName("Level 23");
+		L23SGR.setOfficialElementList(L23Small);
+		L23SGR.getDropBox().setCutoff(l23cutoff);
+	//	L23SGR.setElementList(L23G.getElementList());
+		
+		L23SGR.update();
+//		L23SGR.setConstraint(pruneCL2);
+		System.err.println("xyz DGSGR # = "+L23SGR.getElementList().length);
+
+		L2SGR = new SelectionDGSGR();
+		L2SGR.addSGR(L2OnlySGR);
+		L2SGR.addSGR(L23SGR);
+		L2SGR.setSelected(0);
+		sgrList = new AbstractDGSGR[] {L0SGR, L1SGR, L2SGR, L3SGR, L23SGR};
 		// start with everything reduced
 		setSingle(0, true);
 		setSingle(1, true);
@@ -222,7 +246,7 @@ public class QuartzGroup {
 		anims[2] = new QuartzAnimation(L2SGR.getSceneGraphRepn(), duration, delay, 6);
 		anims[3] = new QuartzAnimation(L3SGR.getSceneGraphRepn(), duration, delay, 3);
 		
-	
+		System.err.println("finished group init");
 	}
 
 	public Matrix getAxis2M() {
@@ -273,6 +297,7 @@ public class QuartzGroup {
 
 	DiscreteGroupConstraint trivialC = new DiscreteGroupSimpleConstraint(1,1,1);
 	public void setSingle(int j, boolean b) {
+		if (j >= 4) return;
 		AbstractDGSGR sgr = sgrList[j]; 
 		singleState[j] = b;
 		
@@ -294,37 +319,43 @@ public class QuartzGroup {
 	QuartzAnimation[] anims = new QuartzAnimation[4];
 	double duration = 2.0, delay = .5;
 	
-	boolean[] singleState = {true, true, false, true};
+	boolean[] singleState = {true, true, false, true, false};
 	DiscreteGroupConstraint oldC[] = new DiscreteGroupConstraint[4];
 	
 	String[] animNames = {"2-fold","3-fold tri", "x-y translate", "z-translate"};
 	boolean[] animState = new boolean[anims.length];
-
+	TextSlider<Integer> dSlider;
+	JCheckBox[] ssCB = new JCheckBox[4];
+	Box inspector = null;
 	public Component getInspector() {
-		Box container = Box.createVerticalBox();
+		if (inspector == null) {
+			inspector = Box.createVerticalBox();	
+		} else return inspector;
+
 		Box buttons = Box.createHorizontalBox();
 		buttons.setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5),
 				BorderFactory.createTitledBorder(BorderFactory
 						.createEtchedBorder(), "Animations")));
-
+		Box container = Box.createVerticalBox();
+		inspector.add(container);
 		container.add(buttons);
-			for (int i = 0; i<anims.length; ++i)	{
-				final int j = i;
-				JButton jb = new JButton(animNames[i]);
-				jb.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						animState[j] = !animState[j];
-						if (animState[j]) {
+		for (int i = 0; i < anims.length; ++i) {
+			final int j = i;
+			JButton jb = new JButton(animNames[i]);
+			jb.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					animState[j] = !animState[j];
+					if (animState[j]) {
 //							anims[j] = new QuartzAnimation(L0SGR.getSceneGraphRepn(), duration, delay);
-							anims[j].start();
-						}
-						else anims[j].stop();
-					}
-				});
-				buttons.add(jb);
-			}
-		
+						anims[j].start();
+					} else
+						anims[j].stop();
+				}
+			});
+			buttons.add(jb);
+		}
+
 		buttons = Box.createHorizontalBox();
 		container.add(buttons);
 		buttons.setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5),
@@ -332,10 +363,11 @@ public class QuartzGroup {
 						.createEtchedBorder(), "Show single copy")));
 
 
-		for (int i = 0; i<sgrList.length; ++i)	{
+		for (int i = 0; i<4; ++i)	{
 			final int j = i;
 			final JCheckBox jb = new JCheckBox("Level"+j);
 			jb.setSelected(singleState[j]);
+			ssCB[i] = jb;
 			jb.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -384,7 +416,7 @@ public class QuartzGroup {
 			}
 		});
 		vbox.add(cSlider);
-		final TextSlider<Integer> dSlider = new TextSlider.Integer("z-copies",  SwingConstants.HORIZONTAL, 1, 20, 1);
+		dSlider = new TextSlider.Integer("z-copies",  SwingConstants.HORIZONTAL, 1, 20, 1);
 		dSlider.addActionListener(new ActionListener() {
 			
 			@Override
@@ -414,33 +446,35 @@ public class QuartzGroup {
 			}
 		});
 		hbox.add(jb);
-		final JCheckBox tgb = new JCheckBox("use huge XY group");
-		tgb.setSelected(useHugeGroup);
+
+		
+		final JCheckBox tgb = new JCheckBox("use xyz group");
+		tgb.setSelected(useXYZGroup);
 		tgb.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				useHugeGroup = tgb.isSelected();
-				int oldN = L2G.getElementList().length;
-//				L2G.setElementList(useHugeGroup ? L2Huge : L2Big, false);
-//				L2G.update();
-				DiscreteGroupElement[] dge = useHugeGroup ? L2Huge : L2Big;
-				L2SGR.setElementList(dge);
-//				Scene.executeWriter(L2SGR.getRepresentationRoot(), new Runnable() {
-//
-//					@Override
-//					public void run() {
-//						L2SGR.update();
-//					}
-//				
-//				});
-				L2SGR.setConstraint(pruneCL2);
-				System.err.println("old, new L2G size: "+oldN+" "+dge.length);
-				System.err.println("L2SGR size: "+L2SGR.getElementList().length);
+				useXYZGroup = tgb.isSelected();
+				updateLevel2();
 			}
 		});
-//		hbox.add(tgb);
+		hbox.add(tgb);
 
-		return container;
+
+		return inspector;
+	}
+
+	private void updateLevel2() {
+		L2SGR.setSelected( useXYZGroup ? 1 : 0);
+		if (useXYZGroup) {
+			L23SGR.setConstraint(pruneCL2);
+			L2OnlySGR.setConstraint(trivialC);
+			ssCB[2].setSelected(true);
+			singleState[2] = true;
+		}
+		else {
+			L2OnlySGR.setConstraint(pruneCL2);
+			L23SGR.setConstraint(pruneCL3);
+		}
 	}
 
 	private class ZConstraint extends DiscreteGroupSimpleConstraint {

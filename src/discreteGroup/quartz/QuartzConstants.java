@@ -23,7 +23,7 @@ public class QuartzConstants {
 	static final double sq3 = 1/Math.sqrt(3.0);
 	static double  
 			yAxisPts[][] = {{0,0,0,1}, {0,1,0,1}},
-			hexTrans[][] = {{1,sq3,0},{0, 2*sq3,0},{-1,sq3,0}},
+			hexTrans[][] = {{1,sq3,0},{-1,sq3,0},{0, 2*sq3,0}},
 			axis3Pts[][] = {{1.0/3.0,0,0,1}, {1.0/3.0,0,1,1}},
 			hex3Pts[][] = {{0,sq3,0,1}, {0,0,1,0}};
 	
@@ -32,7 +32,10 @@ public class QuartzConstants {
 			siliconColor = new Color(255,255,255),
 			chan31Color = AnimationUtility.linearInterpolation( Color.white, chan1, saturated),
 			chan32Color = AnimationUtility.linearInterpolation( Color.white, chan2, saturated),
-			chan6Color = AnimationUtility.linearInterpolation( Color.white, chan3, saturated);
+			chan6Color = AnimationUtility.linearInterpolation( Color.white, chan3, saturated),
+			edge3Color = AnimationUtility.linearInterpolation( Color.white, Color.magenta, saturated),
+			edge4Color = AnimationUtility.linearInterpolation( Color.white, Color.red, saturated);
+;
 
 
 }
