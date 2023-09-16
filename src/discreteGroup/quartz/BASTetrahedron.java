@@ -39,14 +39,14 @@ import de.jreality.util.SceneGraphUtility;
 
 public abstract class BASTetrahedron {
 
-	boolean showLabels = true;
-	protected static Color[] pointClr = { siliconColor, oxygenColor, oxygenColor, oxygenColor, oxygenColor },
+	boolean showLabels = false;
+	protected  Color[] pointClr = { siliconColor, oxygenColor, oxygenColor, oxygenColor, oxygenColor },
 			edgeClr = { chan31Color, chan31Color, chan32Color, chan32Color };
-	protected static String[] vertexLabels = { "Si", "O", "O", "O", "O" };
-	protected static double[] pointRadii = { siliconRad, oxygenRad, oxygenRad, oxygenRad, oxygenRad };
+	protected  String[] vertexLabels = { "Si", "O", "O", "O", "O" };
+	protected  double[] pointRadii = { siliconRad, oxygenRad, oxygenRad, oxygenRad, oxygenRad };
 
-	protected static double[][] baspts = { { 0, 0, 0 }, { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 } };
-	protected static int[][] basIndices = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 0, 4 } };
+	protected  double[][] baspts = { { 0, 0, 0 }, { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 } };
+	protected  int[][] basIndices = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 0, 4 } };
 	static BallAndStickFactory basf = null;
 	IndexedLineSetFactory SiO4ilsf = new IndexedLineSetFactory();
 	SceneGraphComponent SiO4sgc = SceneGraphUtility.createFullSceneGraphComponent();

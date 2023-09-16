@@ -27,14 +27,21 @@ public class QuartzConstants {
 			axis3Pts[][] = {{1.0/3.0,0,0,1}, {1.0/3.0,0,1,1}},
 			hex3Pts[][] = {{0,sq3,0,1}, {0,0,1,0}};
 	
-	static double stickRad = .024, oxygenRad = .06, siliconRad = .11, basScale = 1, saturated = .5;
+	static double stickRad = .024, oxygenRad = .06, siliconRad = .11, 
+			basScale = 1, 
+			saturated = .5,
+			saturated2 = .15;
 	static  Color oxygenColor = new Color(255,70,70), 
 			siliconColor = new Color(255,255,255),
 			chan31Color = AnimationUtility.linearInterpolation( Color.white, chan1, saturated),
 			chan32Color = AnimationUtility.linearInterpolation( Color.white, chan2, saturated),
 			chan6Color = AnimationUtility.linearInterpolation( Color.white, chan3, saturated),
 			edge3Color = AnimationUtility.linearInterpolation( Color.white, Color.magenta, saturated),
-			edge4Color = AnimationUtility.linearInterpolation( Color.white, Color.red, saturated);
+			edge4Color = AnimationUtility.linearInterpolation( Color.white, Color.red, saturated),
+			RD1 = AnimationUtility.linearInterpolation( Color.white, chan1, saturated2),
+			RD2 = AnimationUtility.linearInterpolation( Color.white, edge3Color, saturated2),
+			RD3 = AnimationUtility.linearInterpolation( Color.white, chan2, saturated2),
+			RD4 = AnimationUtility.linearInterpolation( Color.white, edge4Color, saturated2);
 ;
 
 

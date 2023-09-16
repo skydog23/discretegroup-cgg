@@ -25,17 +25,25 @@ import javax.swing.SwingConstants;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
+import charlesgunn.anim.util.AnimationUtility;
 import charlesgunn.jreality.newtools.FlyTool;
 import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.util.TextSlider;
+import de.jreality.geometry.AbstractPointSetFactory;
+import de.jreality.geometry.IndexedFaceSetUtility;
 import de.jreality.math.MatrixBuilder;
 import de.jreality.math.P3;
 import de.jreality.math.Pn;
 import de.jreality.math.Rn;
 import de.jreality.scene.Appearance;
+import de.jreality.scene.IndexedFaceSet;
 import de.jreality.scene.SceneGraphComponent;
 import de.jreality.scene.SceneGraphPath;
 import de.jreality.scene.Viewer;
+import de.jreality.scene.data.Attribute;
+import de.jreality.scene.data.DataList;
+import de.jreality.scene.data.DoubleArrayArray;
+import de.jreality.scene.data.StorageModel;
 import de.jreality.shader.CommonAttributes;
 import de.jreality.util.SceneGraphUtility;
 import de.jreality.util.Secure;
@@ -62,15 +70,17 @@ public class DiamondCrystal extends Assignment {
 	DiscreteGroupSceneGraphRepresentation dgsgr;
 	
 	protected static Color[] pointClr = { siliconColor, siliconColor, siliconColor, siliconColor, siliconColor },
-			edgeClr = { chan31Color, edge3Color, chan32Color, edge4Color };
+			edgeClr = { chan31Color, edge3Color, chan32Color, edge4Color },
+			rhdoClr = {QuartzConstants.RD1, QuartzConstants.RD2, QuartzConstants.RD3, QuartzConstants.RD4};
 	protected static String[] vertexLabels = { "Si", "Si", "Si", "Si", "Si"};
 	protected static double[] pointRadii = { siliconRad, siliconRad, siliconRad, siliconRad, siliconRad };
 	protected QuartzGeometry qg = new QuartzGeometry(null);
 	protected BASTetrahedron basTetra = new DiamondBASTetrahedron();
-	
+	DirichletDomain dd = null;
 	double scale = .5;
 	boolean doCutoff = true;
 	int cutoff = 200;
+	double saturated = .3;
 	QuartzCrystal qc = null;
 	
 	public DiamondCrystal(QuartzCrystal owner) {
@@ -81,11 +91,18 @@ public class DiamondCrystal extends Assignment {
 	public SceneGraphComponent getContent() {
 		DiscreteGroup dg = getDiamondDiscreteGroup();
 		dgsgr = new DiscreteGroupSceneGraphRepresentation(dg, true);
-		
-		DirichletDomain dd = new DirichletDomain(dg);
+		DiscreteGroupElement[] shortlist = new DiscreteGroupElement[50],
+				biglist = dg.getElementList();
+		for (int i = 0; i<50; ++i)	{
+			shortlist[i] = biglist[i];
+		}
+		dgsgr.setOfficialElementList(shortlist);
+		dd = new DirichletDomain(dg);
 		dd.setDirichletDomainOrbit(50);
 		dd.update();
 		unitcell.setGeometry(dd.getDirichletDomain());
+		updateDDEdgeColors();
+
 		Appearance ap = unitcell.getAppearance();
 		ap.setAttribute(CommonAttributes.VERTEX_DRAW, true);
 		ap.setAttribute("lineShader.diffuseColor", Color.white);
@@ -94,7 +111,7 @@ public class DiamondCrystal extends Assignment {
 //		ap.setAttribute("polygonShader.diffuseColor", Color.white);
 		
 		bassgc = basTetra.getBallAndStick(false, QuartzConstants.basScale, pointClr, edgeClr, vertexLabels, pointRadii);
-		tetraGeomSGC.setGeometry(QuartzGeometry.getTetrahedron(true));
+		tetraGeomSGC.setGeometry(new QuartzGeometry(null).getTetrahedron(true));
 		tetraGeomSGC.setVisible(false);
 		tetrasgc.addChildren(bassgc, tetraGeomSGC);
 		container.addChildren(unitcell, tetrasgc);
@@ -109,12 +126,43 @@ public class DiamondCrystal extends Assignment {
 		return world;
 	}
 
+	private void updateDDEdgeColors() {
+		for (int i = 0; i<4; ++i)	{
+			rhdoClr[i] = AnimationUtility.linearInterpolation( Color.white, edgeClr[i], saturated);
+		}
+		IndexedFaceSet ifs = dd.getDirichletDomain();
+		double[][] verts = ifs.getVertexAttributes(Attribute.COORDINATES).toDoubleArrayArray(null);
+		int[][] indices = ifs.getEdgeAttributes(Attribute.INDICES).toIntArrayArray(null);
+		Color[] rdeclrs = new Color[24];
+		for (int i = 0; i<ifs.getNumEdges(); ++i) {
+			int j = indices[i][0], k = indices[i][1]; 
+			double[] dir = Rn.subtract(null, verts[j], verts[k]);
+			int which = getDir(dir);
+			rdeclrs[i] = rhdoClr[which];
+		}
+		double[] rdeclrsd = AbstractPointSetFactory.toDoubleArray(rdeclrs);
+		ifs.setEdgeAttributes(Attribute.COLORS, new DoubleArrayArray.Inlined( rdeclrsd, rdeclrsd.length / 24 ));
+	}
+
+	double[][] four = {{1,1,-1},{1,1,1},{-1,1,1},{1,-1,1}};
+	private int getDir(double[] dir) {
+		for (int i = 0; i<4; ++i)	{
+			double res = Rn.innerProduct(dir,  four[i]);
+			if (Math.abs(Math.abs(res) - .75) < .01) return i; 
+		}
+		return 0;
+	}
+
 	public DiscreteGroupSceneGraphRepresentation getDGSGR() {
 		return dgsgr;
 	}
 	
 	public SceneGraphComponent getUnitcell() {
 		return unitcell;
+	}
+	
+	public SceneGraphComponent getBAS() {
+		return bassgc;
 	}
 	
 	protected DiscreteGroup getDiamondDiscreteGroup() {
@@ -207,9 +255,25 @@ public class DiamondCrystal extends Assignment {
 			public void actionPerformed(ActionEvent e) {
 				doCutoff = tcb.isSelected();
 				dgsgr.getDropBox().setCutoff(doCutoff ? cutoff : -1);
+				qc.getJrviewer().getViewer().renderAsync();
 			}
 		});
 		hbox.add(tcb);
+		
+		hbox = Box.createHorizontalBox();
+		vbox.add(hbox);
+		final TextSlider<Double> sSlider = new TextSlider.Double("saturation",  SwingConstants.HORIZONTAL,0, 1,saturated);
+		sSlider.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saturated = sSlider.getValue().doubleValue();
+				updateDDEdgeColors();
+				qc.getJrviewer().getViewer().renderAsync();
+			}
+		});
+		hbox.add(sSlider);
+
 		vbox.add(basTetra.getInspector());
 		return inspector;
 	}

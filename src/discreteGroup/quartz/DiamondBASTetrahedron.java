@@ -21,6 +21,7 @@ public class DiamondBASTetrahedron extends BASTetrahedron {
 		edgeClr = new Color[] { chan31Color, edge3Color, chan32Color, edge4Color };
 		vertexLabels = new String[] { "Si", "Si", "Si", "Si", "Si" };
 		pointRadii = new double[] { siliconRad, siliconRad, siliconRad, siliconRad, siliconRad };
+
 	}
 
 }

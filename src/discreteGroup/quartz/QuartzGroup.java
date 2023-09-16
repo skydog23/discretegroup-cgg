@@ -98,9 +98,10 @@ public class QuartzGroup {
 //		init();
 	}
 	
-	
+	boolean inited = false;
 	public void init() {
-		
+		if (inited) return;
+		inited = true;
 		L0Gens[0] = new DiscreteGroupElement(Pn.EUCLIDEAN, Rn.identityMatrix(4), "");
 		L0Gens[0].setColorIndex(0);
 		Matrix m = getAxis2M();
@@ -224,10 +225,10 @@ public class QuartzGroup {
 		L23SGR.getRepresentationRoot().setName("Level 23");
 		L23SGR.setOfficialElementList(L23Small);
 		L23SGR.getDropBox().setCutoff(l23cutoff);
-	//	L23SGR.setElementList(L23G.getElementList());
+		L23SGR.setElementList(L23G.getElementList());
 		
 		L23SGR.update();
-//		L23SGR.setConstraint(pruneCL2);
+		L23SGR.setConstraint(pruneCL2);
 		System.err.println("xyz DGSGR # = "+L23SGR.getElementList().length);
 
 		L2SGR = new SelectionDGSGR();
@@ -327,7 +328,11 @@ public class QuartzGroup {
 	TextSlider<Integer> dSlider;
 	JCheckBox[] ssCB = new JCheckBox[4];
 	Box inspector = null;
+	Component xyzInsp = null;
+	Box xyGroupInsp = null, zGroupInsp = null;
+
 	public Component getInspector() {
+		init();
 		if (inspector == null) {
 			inspector = Box.createVerticalBox();	
 		} else return inspector;
@@ -377,11 +382,11 @@ public class QuartzGroup {
 			buttons.add(jb);
 		}
 		
-		Box vbox = Box.createVerticalBox();
-		vbox.setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5),
+		xyGroupInsp = Box.createVerticalBox();
+		xyGroupInsp.setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5),
 				BorderFactory.createTitledBorder(BorderFactory
 						.createEtchedBorder(), "x-y group constraints")));
-		container.add(vbox);
+		container.add(xyGroupInsp);
 		final TextSlider<Double> aSlider = new TextSlider.Double("max dist",  SwingConstants.HORIZONTAL,-1,10, maxD);
 		aSlider.addActionListener(new ActionListener() {
 			
@@ -392,7 +397,7 @@ public class QuartzGroup {
 				L2SGR.setConstraint(pruneCL2);
 			}
 		});
-		vbox.add(aSlider);
+		xyGroupInsp.add(aSlider);
 		final TextSlider<Integer> bSlider = new TextSlider.Integer("max word",  SwingConstants.HORIZONTAL, 1, 10, maxL);
 		bSlider.addActionListener(new ActionListener() {
 			
@@ -403,7 +408,7 @@ public class QuartzGroup {
 				L2SGR.setConstraint(pruneCL2);
 			}
 		});
-		vbox.add(bSlider);
+		xyGroupInsp.add(bSlider);
 		final TextSlider cSlider = new TextSlider.Integer("num Els",  SwingConstants.HORIZONTAL, 1, 50, numEl);
 		cSlider.addActionListener(new ActionListener() {
 			
@@ -415,7 +420,9 @@ public class QuartzGroup {
 				System.err.println("L2SGR # = "+L2SGR.getElementList().length);
 			}
 		});
-		vbox.add(cSlider);
+		xyGroupInsp.add(cSlider);
+		zGroupInsp = Box.createHorizontalBox();
+		container.add(zGroupInsp);
 		dSlider = new TextSlider.Integer("z-copies",  SwingConstants.HORIZONTAL, 1, 20, 1);
 		dSlider.addActionListener(new ActionListener() {
 			
@@ -429,9 +436,7 @@ public class QuartzGroup {
 				System.err.println(" sgr el # = "+L3SGR.getElementList().length);
 			}
 		});
-		container.add(dSlider);
-		Box hbox = Box.createHorizontalBox();
-		container.add(hbox);
+		zGroupInsp.add(dSlider);
 		final JCheckBox jb = new JCheckBox("up only");
 		jb.setSelected(zUpOnly);
 		jb.addActionListener(new ActionListener() {
@@ -445,9 +450,11 @@ public class QuartzGroup {
 				System.err.println("L3SGR # = "+L3SGR.getElementList().length);
 			}
 		});
-		hbox.add(jb);
+		zGroupInsp.add(jb);
 
 		
+		Box hbox = Box.createHorizontalBox();
+		container.add(hbox);
 		final JCheckBox tgb = new JCheckBox("use xyz group");
 		tgb.setSelected(useXYZGroup);
 		tgb.addActionListener(new ActionListener() {
@@ -459,12 +466,18 @@ public class QuartzGroup {
 		});
 		hbox.add(tgb);
 
-
+		inspector.add(L23SGR.getInspector());
+		L23SGR.getInspector().setVisible(useXYZGroup);
+		xyGroupInsp.setVisible(!useXYZGroup);
+		zGroupInsp.setVisible(!useXYZGroup);
 		return inspector;
 	}
 
 	private void updateLevel2() {
 		L2SGR.setSelected( useXYZGroup ? 1 : 0);
+		L23SGR.getInspector().setVisible(useXYZGroup);
+		xyGroupInsp.setVisible(!useXYZGroup);
+		zGroupInsp.setVisible(!useXYZGroup);
 		if (useXYZGroup) {
 			L23SGR.setConstraint(pruneCL2);
 			L2OnlySGR.setConstraint(trivialC);

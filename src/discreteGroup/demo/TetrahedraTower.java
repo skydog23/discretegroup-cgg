@@ -46,7 +46,7 @@ public class TetrahedraTower extends Assignment {
 		int[][] indices = tetrahedron.getFaceAttributes(Attribute.INDICES).toIntArrayArray(null);
 		double[][] verts = tetrahedron.getVertexAttributes(Attribute.COORDINATES).toDoubleArrayArray(null);
 		double[][] pts = new double[5][];
-		pts[0] = new double[]{0,0,0};
+		pts[0] = new double[]{0,0,0,1};
 		for (int i = 0; i<indices.length; ++i)	{
 			planes[i] = P3.planeFromPoints(null, verts[indices[i][0]], verts[indices[i][1]], verts[indices[i][2]]);
 			double[][] tmp = {verts[indices[i][0]], verts[indices[i][1]], verts[indices[i][2]]};
@@ -62,7 +62,7 @@ public class TetrahedraTower extends Assignment {
 		SceneGraphComponent universe = SceneGraphUtility.createFullSceneGraphComponent("world");
 		world.setGeometry(tetrahedron);
 		Appearance ap = world.getAppearance();
-		ap.setAttribute(CommonAttributes.TUBES_DRAW, false);
+//		ap.setAttribute(CommonAttributes.TUBES_DRAW, false);
 		ap.setAttribute("lineShader.lineWidth", 2.0);
 //		world.addChild(pointsSGC);
 		pointsSGC.setGeometry(psf.getPointSet());
@@ -130,9 +130,10 @@ public class TetrahedraTower extends Assignment {
 		dgsgr.update();
 		universe.addChild(dgsgr.getRepresentationRoot());
 		RotateTool rt = new RotateTool();
+		
 		universe.getAppearance().setAttribute(GeometryUtility.BOUNDING_BOX, Rectangle3D.EMPTY_BOX);
-		universe.addTool(rt);
-		MatrixBuilder.elliptic().translate(0, 0, -1);
+		//universe.addTool(rt);
+		MatrixBuilder.elliptic().translate(0, 0, Math.PI/2).assignTo(universe);
 		return universe;
 	}
 	@Override
@@ -141,6 +142,7 @@ public class TetrahedraTower extends Assignment {
 		super.display();
 		FlyTool flytool = new FlyTool();
 		flytool.setGain(.1);
+		flytool.setMetric(Pn.ELLIPTIC);
 		CameraUtility.getCameraNode(viewer).addTool(flytool);
 		Camera cam = CameraUtility.getCamera( viewer);
 		cam.setFar(-.1);
@@ -163,6 +165,7 @@ public class TetrahedraTower extends Assignment {
 	}
 
 	public static void main(String[] args) {
+		System.err.println("TetTow debug");
 		new TetrahedraTower().display();
 	}
 }

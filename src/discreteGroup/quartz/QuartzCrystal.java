@@ -98,13 +98,13 @@ public class QuartzCrystal extends Assignment {
 	transient boolean single = false,
 			showAxes = true,
 			showRhomb = true,
-			showTetra = true,
-			showBAS = false,
+			showTetra = false,
+			showBAS = true,
 			doSliceBox = false,
 			doHalfTetra = false,
 			doFog = true,
 			doCutoff = true,
-			doDiamond = true;
+			doDiamond = false;
 	transient public QuartzGeometry quartzGeom = new QuartzGeometry(this);
 	transient public QuartzGroup quartzGroup = new QuartzGroup(this);
 	DiamondCrystal diamcry = new DiamondCrystal(this);
@@ -170,6 +170,7 @@ public class QuartzCrystal extends Assignment {
 		ap.setAttribute("pointShader.diffuseColor", Color.white);
 		ap.setAttribute("pointShader.pointRadius", .01);
 		ap.setAttribute("lineShader.diffuseColor", Color.white);
+		ap.setAttribute("lineShader.tubeRadius", .01);
 	
 		updateTetras();
 				
@@ -377,6 +378,7 @@ public class QuartzCrystal extends Assignment {
 				case KeyEvent.VK_5:
 					showBAS = !showBAS;
 					bassgc.setVisible(showBAS);
+					diamcry.getBAS().setVisible(showBAS);
 					break;
 
 				case KeyEvent.VK_6:
@@ -388,10 +390,6 @@ public class QuartzCrystal extends Assignment {
 					break;
 					
 				case KeyEvent.VK_8:
-//					doHalfTetra = !doHalfTetra;
-//					setDoHalfTetra(doHalfTetra);
-					doCutoff = !doCutoff;
-					diamondDGSGR.getDropBox().setCutoff(doCutoff ? 300 : -1);
 					break;
 
 				case KeyEvent.VK_9:

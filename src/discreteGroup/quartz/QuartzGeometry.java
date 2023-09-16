@@ -58,11 +58,11 @@ public class QuartzGeometry {
 		this.owner = owner;
 	}
 	
-	protected static Geometry getTetrahedron() {
+	protected  Geometry getTetrahedron() {
 		return getTetrahedron(true);
 	}
 	
-	protected static Geometry getTetrahedron(boolean fc) {
+	protected  Geometry getTetrahedron(boolean fc) {
 		IndexedFaceSetFactory ifsf = new IndexedFaceSetFactory();
 		ifsf.setVertexCount(4);
 		ifsf.setEdgeCount(edgeIndices4.length);
