@@ -458,8 +458,8 @@ public class QuartzCrystal extends Assignment {
 
 	private void updateCamera() {
 		Camera cam = CameraUtility.getCamera(viewer);
-		cam.setNear(.05);
-		cam.setFar(20.0);
+		cam.setNear(.02);
+		cam.setFar(15.0);
 		cam.setEyeSeparation(.05);
 		cam.setFocus(2.5);
 	}

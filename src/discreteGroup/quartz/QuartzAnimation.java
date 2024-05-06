@@ -27,7 +27,7 @@ import jogamp.opengl.GLDebugMessageHandler.StdErrGLDebugListener;
 public class QuartzAnimation {
 
 	MidiSoundEffects mse = new MidiSoundEffects();
-	boolean doSound = false;
+	boolean doSound = true;
 	AnimatedIsometry[] animIsomL = null;
 	Timer timer;
 	boolean started = false;

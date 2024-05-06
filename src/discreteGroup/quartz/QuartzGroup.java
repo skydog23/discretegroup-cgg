@@ -79,7 +79,7 @@ public class QuartzGroup {
 	DiscreteGroupSimpleConstraint smallC, bigC, hugeC, pruneCL2, pruneCL3;
 	ZConstraint  groupCL3;
 	
-	int maxL = 1, numEl = 7, l23cutoff = 200;
+	int maxL = 1, numEl = 7, l23cutoff = 15000;
 	double maxD = -1;
 	
 	boolean showHalfTurn = true,
@@ -141,7 +141,10 @@ public class QuartzGroup {
 					translate(QuartzConstants.hexTrans[i]).
 					getMatrix();
 			L2Gens[i] = new DiscreteGroupElement(Pn.EUCLIDEAN, L2M[i].getArray(), enames[i]);
-			L2Gens[i+3] = L2Gens[i].getInverse();
+			L2Gens[i+3] = L2Gens[i].getInverse();			
+		}
+		for (int i = 0; i<6; ++i) {
+			System.err.println(i+"L2Gens ="+Rn.matrixToString(L2Gens[i].getArray()));
 		}
 		L2G.setGenerators(L2Gens);
 		L2G.setDimension(3);
@@ -221,7 +224,7 @@ public class QuartzGroup {
 		L23G.update();
 		System.err.println("xyz DG # = "+L23G.getElementList().length);
 
-		L23SGR = new DiscreteGroupSceneGraphRepresentation(L23G, true);
+		L23SGR = new DiscreteGroupSceneGraphRepresentation(L23G, true); // turn on copycat
 		L23SGR.getRepresentationRoot().setName("Level 23");
 		L23SGR.setOfficialElementList(L23Small);
 		L23SGR.getDropBox().setCutoff(l23cutoff);
