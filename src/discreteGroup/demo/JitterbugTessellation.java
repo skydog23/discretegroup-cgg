@@ -13,6 +13,7 @@ import javax.swing.SwingConstants;
 import charlesgunn.anim.core.KeyFrameAnimatedBean;
 import charlesgunn.anim.plugin.AnimationPlugin;
 import charlesgunn.jreality.geometry.ClipBox;
+import charlesgunn.jreality.newtools.FlyTool;
 import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.IndexedFaceSetFactory;
@@ -42,10 +43,9 @@ public class JitterbugTessellation extends Assignment {
 
 	transient private DiscreteGroup translationGroup;
 	transient private ClipBox clipbox;
-	transient private SceneGraphComponent triSGC, gapSGC, gapTriSGC;
+	transient private SceneGraphComponent worldSGC, triSGC, gapSGC, gapTriSGC;
 	transient TextSlider.Double clipSlider;
-	transient TextSlider.Double timeSlider
-	;
+	transient TextSlider.Double timeSlider;
 
 	boolean showGaps = false, showTris = true, showGapTri= false;
 	double time = 0.0,
@@ -57,6 +57,7 @@ public class JitterbugTessellation extends Assignment {
 		DiscreteGroupSceneGraphRepresentation dgsgr = new DiscreteGroupSceneGraphRepresentation(pointGroupS222);
 		triSGC = SceneGraphUtility.createFullSceneGraphComponent("triSGC");
 		gapSGC = SceneGraphUtility.createFullSceneGraphComponent("gapSGC");
+		worldSGC = SceneGraphUtility.createFullSceneGraphComponent("world");
 		gapTriSGC = SceneGraphUtility.createFullSceneGraphComponent("gapSGC");
 		//		fundDomSGC.addTool(new RotateTool());
 		// attach it to the scene graph representation
@@ -167,23 +168,35 @@ public class JitterbugTessellation extends Assignment {
 		clipbox.setDim(new double[]{clipSize, clipSize, clipSize});
 //		simpleConstraint.setMaxDistance(clipSize+1);
 		tlateRepn.getRepresentationRoot().addChild(clipbox.getBox());
-	
-		return tlateRepn.getRepresentationRoot();
+		worldSGC.addChild(tlateRepn.getRepresentationRoot());
+		return worldSGC;
 	}
 
 	@Override
 	public void display() {
 		super.display();
-		Viewer viewer = jrviewer.getViewer();
+		viewer = jrviewer.getViewer();
+		FlyTool flyTool = new FlyTool();
+//		flyTool.addChangeListener(new ActionListener() {
+//
+//			public void actionPerformed(ActionEvent e) {
+//				System.err.println("flying");
+//				viewer.renderAsync();
+//			}
+//			
+//		});
+
+		flyTool.setGain(1);
+		scene.getAvatarComponent().addTool(flyTool);
+//		CameraUtility.getCameraNode(viewer).addTool(flyTool);
+		System.err.println("camera path = "+viewer.getCameraPath().toString());
+		
 		viewer.getSceneRoot().getAppearance().setAttribute("backgroundColor", Color.black);
 		AnimationPlugin ap = animationPlugin;
-//		KeyFrameAnimatedBean me = new KeyFrameAnimatedBean(this, getExcludedProperties());
+		ap.setAnimateCamera(true);
+		ap.setAnimateSceneGraph(true);
 		KeyFrameAnimatedBean me = new KeyFrameAnimatedBean(this);
 		ap.getAnimated().add(me);
-		Camera c = CameraUtility.getCamera(viewer);
-		KeyFrameAnimatedBean<Camera> ac = new KeyFrameAnimatedBean<Camera>(c);
-		ac.setName("cameraBean");
-		ap.getAnimated().add(ac);
 //		SceneGraphPath pathToWorld = SceneGraphUtility.getPathsBetween(
 //				viewer.getSceneRoot(), world ).get(0);
 //		Graphics3D g3d = new Graphics3D(viewer);
@@ -197,7 +210,7 @@ public class JitterbugTessellation extends Assignment {
 
 	@Override
 	public Component getInspector() {
-		Box container = inspector;
+		Box container = (Box) super.getInspector();
 		timeSlider = new TextSlider.Double("jitterbug",
 				SwingConstants.HORIZONTAL, 0.0, 1, time);
 		timeSlider.addActionListener(new ActionListener() {

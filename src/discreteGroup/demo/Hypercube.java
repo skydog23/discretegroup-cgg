@@ -14,6 +14,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JMenuBar;
 import javax.swing.SwingConstants;
 
+import charlesgunn.jreality.newtools.FlyTool;
 import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.jreality.viewer.LoadableScene;
 import charlesgunn.math.clifford.PascalDemo;
@@ -104,13 +105,13 @@ public class Hypercube extends Assignment {
 			theSGRepn.getChildComponent(i).setVisible(false);
 		}
 		world.addChild(dgr.getRepresentationRoot());
-		world.getAppearance().setAttribute(CommonAttributes.TRANSPARENCY_ENABLED, true);
+//		world.getAppearance().setAttribute(CommonAttributes.TRANSPARENCY_ENABLED, true);
 		world.getAppearance().setAttribute("polygonShader."+CommonAttributes.TRANSPARENCY, .85);
 		world.getAppearance().setAttribute("pointShader."+CommonAttributes.POINT_RADIUS, .02);
 		world.getAppearance().setAttribute("lineShader."+CommonAttributes.TUBE_RADIUS, .02);
 		world.getAppearance().setAttribute("lineShader."+CommonAttributes.TUBES_DRAW, false);
 		world.getAppearance().setAttribute("lineShader."+CommonAttributes.TUBE_STYLE, FrameFieldType.FRENET);
-		world.getAppearance().setAttribute(CommonAttributes.LIGHTING_ENABLED, true);
+//		world.getAppearance().setAttribute(CommonAttributes.LIGHTING_ENABLED, true);
 		world.getAppearance().setAttribute("useGLSL", true);
 		MatrixBuilder.elliptic().translate(new double[]{0,0,-1,0}).assignTo(world);
 		return world;
@@ -120,6 +121,11 @@ public class Hypercube extends Assignment {
 	public void display() {
 		super.display();
 		CameraUtility.getCamera(jrviewer.getViewer()).setFieldOfView(110.0);
+		CameraUtility.getCamera(jrviewer.getViewer()).setFar(-1.0);
+		FlyTool fly = new FlyTool();
+		fly.setGain(.1);
+		fly.setMetric(Pn.ELLIPTIC);
+		CameraUtility.getCameraNode(viewer).addTool(fly);
 		jrviewer.getViewer().getSceneRoot().getAppearance().setAttribute(CommonAttributes.METRIC, Pn.ELLIPTIC);
 		
 	}
