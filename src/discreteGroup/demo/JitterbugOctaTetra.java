@@ -21,11 +21,15 @@ import charlesgunn.anim.util.AnimationUtility.InterpolationTypes;
 import charlesgunn.jreality.geometry.ClipBox;
 import charlesgunn.jreality.newtools.FlyTool;
 import charlesgunn.jreality.viewer.Assignment;
+import charlesgunn.math.p5.P5;
+import charlesgunn.math.p5.PlueckerLineGeometry;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.IndexedFaceSetFactory;
+import de.jreality.geometry.IndexedFaceSetUtility;
 import de.jreality.geometry.Primitives;
 import de.jreality.math.Matrix;
 import de.jreality.math.MatrixBuilder;
+import de.jreality.math.P3;
 import de.jreality.math.Pn;
 import de.jreality.math.Rn;
 import de.jreality.scene.Appearance;
@@ -42,6 +46,8 @@ import de.jtem.discretegroup.core.DiscreteGroupConstraintUtility;
 import de.jtem.discretegroup.core.DiscreteGroupElement;
 import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
 import de.jtem.discretegroup.core.DiscreteGroupSimpleConstraint;
+import de.jtem.discretegroup.groups.ArchimedeanSolids;
+import de.jtem.discretegroup.util.WingedEdgeUtility;
 
 public class JitterbugOctaTetra extends Assignment {
 
@@ -53,10 +59,11 @@ public class JitterbugOctaTetra extends Assignment {
 		fourGroupRepn = new DiscreteGroupSceneGraphRepresentation(fourGroup);
 	transient private DiscreteGroupSimpleConstraint 
 		simpleConstraint = new DiscreteGroupSimpleConstraint(3,0,25);
+	DiscreteGroupConstraint diconst = DiscreteGroupConstraintUtility.directIsometryConstraint(false);
 
 	
 	transient private ClipBox clipbox;
-	transient private SceneGraphComponent collectSGC, octaSGC, triLinearSGC, animTriSGC, tri1GoodSGC, tri3GoodSGC;
+	transient private SceneGraphComponent interpVariantsSGC, collect2SGC, octaSGC, triLinearSGC, animTriSGC, tri1GoodSGC, tri3GoodSGC;
 	transient TextSlider.Double clipSlider;
 	transient TextSlider.Double timeSlider;
 
@@ -68,15 +75,13 @@ public class JitterbugOctaTetra extends Assignment {
 		triLinearSGC = SceneGraphUtility.createFullSceneGraphComponent("triSGC");
 		tri1GoodSGC = SceneGraphUtility.createFullSceneGraphComponent("gapSGC");
 		SceneGraphUtility.createFullSceneGraphComponent("world");
-		collectSGC = SceneGraphUtility.createFullSceneGraphComponent("collect");
+		interpVariantsSGC = SceneGraphUtility.createFullSceneGraphComponent("collect1");
+		collect2SGC = SceneGraphUtility.createFullSceneGraphComponent("collect2");
 		tri3GoodSGC = SceneGraphUtility.createFullSceneGraphComponent("gapSGC");
 		SceneGraphUtility.createFullSceneGraphComponent("tri2");
 		animTriSGC = SceneGraphUtility.createFullSceneGraphComponent("tri3");
 		//		fundDomSGC.addTool(new RotateTool());
 		// attach it to the scene graph representation
-		triLinearSGC.setVisible(false);
-		tri1GoodSGC.setVisible(true);
-		tri3GoodSGC.setVisible(false);
 		triangleFactory.setVertexCount(3);
 		triangleFactory.setFaceCount(1);
 		triangleFactory.setFaceIndices(new int[][]{{0,1,2}});
@@ -105,9 +110,8 @@ public class JitterbugOctaTetra extends Assignment {
 		tri1GoodSGC.setGeometry(gapFactory.getIndexedFaceSet());
 		tri3GoodSGC.setGeometry(gapTriFactory.getIndexedFaceSet());
 		
-		Appearance ap = collectSGC.getAppearance();
-	    ap.setAttribute("lineShader.polygonShader.diffuseColor", 
-					Color.blue);
+		Appearance ap = collect2SGC.getAppearance();
+	    ap.setAttribute("lineShader.diffuseColor", Color.blue);
 		ap.setAttribute("pointShader.polygonShader.diffuseColor", 
 				new Color(1f, 1f, 0f));
 		ap.setAttribute(CommonAttributes.TUBE_RADIUS, .02);
@@ -133,22 +137,26 @@ public class JitterbugOctaTetra extends Assignment {
 				Pn.EUCLIDEAN, MatrixBuilder.euclidean().reflect(new double[] {1,0,0,0}).getArray(),names[3]);
 		pointGroup.setGenerators(gens);	
 		pointGroup.setFinite(true);
-		DiscreteGroupConstraint diconst = DiscreteGroupConstraintUtility.directIsometryConstraint(true);
 		diconst.setMaxNumberElements(8);
-		pointGroup.setConstraint(diconst);
 		pointGroup.update();
 		pointRepn = new DiscreteGroupSceneGraphRepresentation(pointGroup);
 		
 		octaSGC = SceneGraphUtility.createFullSceneGraphComponent("octahed");
-		octaSGC.setGeometry(Primitives.coloredCube());
+		ap = octaSGC.getAppearance();
+	    ap.setAttribute("lineShader.diffuseColor", new Color(250,250,150));
+		ap.setAttribute(CommonAttributes.TUBE_RADIUS, .01);
+		
+		octaSGC.setGeometry(Primitives.octahedron());
 		octaSGC.getAppearance().setAttribute(CommonAttributes.FACE_DRAW, false);
-		octaSGC.setVisible(false);
+		octaSGC.setVisible(true);
 //		animTriSGC.addChildren(triSGC, gapSGC);
-		MatrixBuilder.euclidean().rotateZ(Math.PI/4).scale(1/Math.sqrt(2.0)).assignTo(collectSGC);
-		collectSGC.addChildren(triLinearSGC, tri1GoodSGC, tri3GoodSGC); 
-
-		pointRepn.setWorldNode(collectSGC); //dgsgr.getSceneGraphRepn());
+		MatrixBuilder.euclidean().rotateZ(Math.PI/4).scale(1/Math.sqrt(2.0)).assignTo(interpVariantsSGC);
+		interpVariantsSGC.addChildren(triLinearSGC, tri1GoodSGC, tri3GoodSGC); 
+		setVariant(0);
+		collect2SGC.addChildren(interpVariantsSGC, octaSGC);
+		pointRepn.setWorldNode(collect2SGC); //dgsgr.getSceneGraphRepn());
 		pointRepn.update();
+		pointGroupVis(false);
 
 		translationGroup = new DiscreteGroup();
 		translationGroup.setMetric(Pn.EUCLIDEAN);	// only indirectly used, when creating various sorts of geometry associated to the group
@@ -188,19 +196,28 @@ public class JitterbugOctaTetra extends Assignment {
 		simpleConstraint.setMaxDistance(clipSize+1);
 		tlateRepn.getRepresentationRoot().addChild(clipbox.getBox());
 		
-		fourGroup.setFinite(true);
 
+		boolean doRotate4 = false;
 		DiscreteGroupElement[] els = new DiscreteGroupElement[4];
-		double[][] tlates = {{0,0,0},{1,1,0},{1,0,1},{0,1,1}};
+		double[][] tlates = {{1,1,0},{1,0,1},{0,1,1}};
+		double[][] points = {{1,0,0,1},{0,1,0,1},{0,0,1,1}};
+		String[] nms = {"i","x","y","z"};
 		Color[] clrs = {Color.yellow, Color.green, Color.red, Color.magenta};
 		Appearance[] aplist = new Appearance[4];
+		double[][] mats = new double[4][];
+		mats[0] = Rn.identityMatrix(4);
+		for (int i = 0; i<3; ++i)	{
+			mats[i+1] = doRotate4 ? 
+					P3.makeRotationMatrix(null, points[(i+1)%3], points[(i+2)%3], Math.PI, Pn.EUCLIDEAN) :
+					MatrixBuilder.euclidean().translate(tlates[i]).getArray();	
+		}			
 		for (int i = 0; i<4; ++i)	{
-			els[i] = new DiscreteGroupElement(
-					Pn.EUCLIDEAN, MatrixBuilder.euclidean().translate(tlates[i]).getArray(), "x");
+			els[i] = new DiscreteGroupElement(Pn.EUCLIDEAN, mats[i], nms[i]);
 			els[i].setColorIndex(i);
 			aplist[i] = new Appearance();
 			aplist[i].setAttribute("polygonShader.diffuseColor", clrs[i]);
 		}
+		fourGroup.setFinite(true);
 		fourGroup.setElementList(els, true);
 		fourGroup.update();
 		fourGroupRepn.setElementList(els);
@@ -222,37 +239,13 @@ public class JitterbugOctaTetra extends Assignment {
 		flyTool.setGain(1);
 		scene.getAvatarComponent().addTool(flyTool);
 		
-		viewer.getSceneRoot().getAppearance().setAttribute("backgroundColor", Color.black);
+		viewer.getSceneRoot().getAppearance().setAttribute("backgroundColor", new Color(0,0,0,0));
 		AnimationPlugin ap = animationPlugin;
-		ap.setAnimateCamera(false);
-		ap.setAnimateSceneGraph(false);
+		ap.setAnimateCamera(true);
+		ap.setAnimateSceneGraph(true);
 		KeyFrameAnimatedBean<JitterbugOctaTetra> me = new KeyFrameAnimatedBean<JitterbugOctaTetra>(this);
 		ap.getAnimated().add(me);
 		
-		// add the camera node by hand to animation system
-//		Transformation tt = new Transformation();
-//		KeyFrameAnimatedTransformation T = new KeyFrameAnimatedTransformation(tt, Pn.EUCLIDEAN);	
-//		T.setInterpolationType(InterpolationTypes.CUBIC_HERMITE);
-//		T.setName(animTriSGC.getName()+" Tform");
-//		MatrixBuilder.euclidean().assignTo(tt);
-//		T.addKeyFrame(new TimeDescriptor(0.0));
-//		Matrix m = new Matrix(new double[]{0.833333, -0.5, 0.235702, -0.333333, 0.5, 0.5, -0.707107, 0, 
-//			0.235702, 0.707107, 0.666667, -0.235702, 0, 0, 0, 1.});
-//		m.assignTo(tt);;		
-//		T.addKeyFrame(new TimeDescriptor(1.0));
-//		ap.getAnimated().add(T);	
-//		T.setValueAtTime(0);
-		//animTriSGC.setTransformation(tt);
-
-//		animTriSGC.getTransformation().addTransformationListener(new TransformationListener() {
-//			
-//			@Override
-//			public void transformationMatrixChanged(TransformationEvent ev) {
-//				System.err.println(animTriSGC.getName()+" changed tform");
-//				
-//			}
-//		});
-
 //		SceneGraphPath pathToWorld = SceneGraphUtility.getPathsBetween(
 //				viewer.getSceneRoot(), world ).get(0);
 //		Graphics3D g3d = new Graphics3D(viewer);
@@ -265,10 +258,16 @@ public class JitterbugOctaTetra extends Assignment {
 
 	static double k = Math.sqrt(2.0)/2;
 	private double h(double t) { return Math.sqrt(.5*t*(2-t));}
+	
 	@Override
 	public void setValueAtTime(double t) {
 		// TODO Auto-generated method stub
 		super.setValueAtTime(t);
+		// Three different ways to calculate the coordinates of the animated triangle
+		// The first interpolates linearly, and ends up being an equilateral triangle that gets smaller then bigger
+		// the second attempts keeps the length of at one edges constant
+		// The third uses Mathematica code to adjust the third vertex so that the triangle remains the same size and equilateral
+		// Unfortunately only the first avoids distracting self-intersections of neighboring triangles
 		double[][] coords = {{1-t, 1, k*t,1}, {0, -t, k*(2-t),1}, { 1, t-1, -k*t,1}};
 		double[][] coordsWH = {{1-t, 1, h(t),1}, {0, -t, k+h(1-t),1}, { 1, t-1, -h(t),1}};
 		double  sc = 1.0/(-8+2*Math.pow(t,2)),
@@ -315,10 +314,9 @@ public class JitterbugOctaTetra extends Assignment {
 			});
 			showFourGroup.add(animate);
 		}
-		container.add(showFourGroup);
 
 		JComboBox poop = new JComboBox(new String[] {"line","1 good","3 good"}); //PaintType.values()); //
-		poop.setSelectedIndex(1);
+		poop.setSelectedIndex(0);
 		poop.addActionListener(new ActionListener() {
 			
 			@Override
@@ -330,7 +328,22 @@ public class JitterbugOctaTetra extends Assignment {
 			
 		});
 		poop.setPreferredSize(new Dimension(40,20));
-		container.add(poop);
+		showFourGroup.add(poop);
+		
+		JCheckBox all8 = new JCheckBox("mirror images");
+		all8.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				boolean b = ((JCheckBox) e.getSource()).isSelected();
+				pointGroupVis(b);
+			}
+			
+		});
+
+		showFourGroup.add(all8);
+		container.add(showFourGroup);
+
 
 		timeSlider = new TextSlider.Double("jitterbug",
 				SwingConstants.HORIZONTAL, 0.0, 1, time);
@@ -378,12 +391,16 @@ public class JitterbugOctaTetra extends Assignment {
 						flipVariant(2);
 						break;		
 
-						
 					case KeyEvent.VK_4:
+						octaSGC.setVisible(!octaSGC.isVisible());
+						break;		
+
+						
+					case KeyEvent.VK_9:
 						tlateRepn.setClipToCamera(!tlateRepn.isClipToCamera());
 						break;
 
-					case KeyEvent.VK_5:
+					case KeyEvent.VK_0:
 						tlateRepn.setFollowsCamera(!tlateRepn.isFollowsCamera());
 						break;		
 }
@@ -425,13 +442,25 @@ public class JitterbugOctaTetra extends Assignment {
 	
 	protected void setVariant(int which) {
 		for (int i = 0; i<3; ++i)	{
-			collectSGC.getChildComponent(i).setVisible(i==which);
+			interpVariantsSGC.getChildComponent(i).setVisible(i==which);
 		}
 	}
 
 	protected void flipVariant(int which) {
-			collectSGC.getChildComponent(which).setVisible(
-					!collectSGC.getChildComponent(which).isVisible());
+			interpVariantsSGC.getChildComponent(which).setVisible(
+					!interpVariantsSGC.getChildComponent(which).isVisible());
+	}
+
+	protected void pointGroupVis(boolean b) {
+		int n = pointRepn.getSceneGraphRepn().getChildComponentCount();
+		for (int i = 0; i<n; ++i)	{
+			if (b) {
+				pointRepn.getSceneGraphRepn().getChildComponent(i).setVisible(true);
+				continue;
+			} // only show the direct isometries
+			double[] m = pointRepn.getSceneGraphRepn().getChildComponent(i).getTransformation().getMatrix();
+			pointRepn.getSceneGraphRepn().getChildComponent(i).setVisible(Rn.determinant(m)>0);
+		}
 	}
 
 	public static void main(String[] args) {
