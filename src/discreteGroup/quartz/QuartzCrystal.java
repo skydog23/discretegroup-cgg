@@ -95,9 +95,11 @@ public class QuartzCrystal extends Assignment {
 				bassgc = SceneGraphUtility.createFullSceneGraphComponent("bassgc"),
 				celloutlinesgc = SceneGraphUtility.createFullSceneGraphComponent("rhombsgc"),
 		camsgc = SceneGraphUtility.createFullSceneGraphComponent("centered camera");
-	transient boolean single = false,
-			showAxes = true,
-			showRhomb = true,
+	
+	transient boolean startWithTess = false,
+			single = false,
+			showAxes = !startWithTess,
+			showRhomb = !startWithTess,
 			showTetra = false,
 			showBAS = true,
 			doSliceBox = false,
@@ -161,9 +163,11 @@ public class QuartzCrystal extends Assignment {
 		axis32sgc.setGeometry(quartzGeom.get3Axis());
 		axis6sgc.setGeometry(quartzGeom.get6Axis());
 		axis6sgc.setVisible(false);
+		axis31sgc.setVisible(!startWithTess);
 		axis32sgc.setVisible(false);
 
 		celloutlinesgc.setGeometry(quartzGeom.getCellOutline());
+		celloutlinesgc.setVisible(!startWithTess);
 		ap = celloutlinesgc.getAppearance();
 		ap.setAttribute(CommonAttributes.FACE_DRAW, false);
 		ap.setAttribute(CommonAttributes.VERTEX_DRAW, true);
@@ -318,14 +322,14 @@ public class QuartzCrystal extends Assignment {
 		rap.setAttribute(CommonAttributes.FOG_MODE,2);
 		rap.setAttribute(CommonAttributes.FOG_BEGIN, 2.0);
 		rap.setAttribute(CommonAttributes.FOG_END, 6.0);
-		rap.setAttribute(CommonAttributes.FOG_DENSITY, .25);
+		rap.setAttribute(CommonAttributes.FOG_DENSITY, .2);
 		rap.setAttribute(CommonAttributes.FOG_COLOR, bkgdclr);
 		updateFog();
 		
 		// set near and far clipping plane
 		Camera cam = CameraUtility.getCamera(viewer);
 		// these are settings for lying aroumd inside.
-		updateCamera();
+		updateCamera(cam);
 		standardCamSGP = viewer.getCameraPath();
 		path2World = SceneGraphUtility.getPathsBetween(viewer.getSceneRoot(), world).get(0);
 		viewer.getSceneRoot().addChild(camsgc);
@@ -333,7 +337,7 @@ public class QuartzCrystal extends Assignment {
 		centerCamSGP = new SceneGraphPath();
 		centerCamSGP.push(viewer.getSceneRoot());
 		centerCamSGP.push(camsgc);
-		centerCamSGP.push(centerCam);
+		centerCamSGP.push(centerCam); //CameraUtility.getCamera(viewer));
 
 		FlyTool flytool = new FlyTool();
 		flytool.setGain(.5);
@@ -382,7 +386,7 @@ public class QuartzCrystal extends Assignment {
 					break;
 
 				case KeyEvent.VK_6:
-					updateCamera();
+					updateCamera(CameraUtility.getCamera(viewer));
 					break;
 
 				case KeyEvent.VK_7:
@@ -390,6 +394,11 @@ public class QuartzCrystal extends Assignment {
 					break;
 					
 				case KeyEvent.VK_8:
+					double cnear = centerCam.getNear();
+					if ((m&1) == 0) cnear *= 2;
+					else cnear *= .5;
+					centerCam.setNear(cnear);
+					System.err.println("Camera near = "+centerCam.getNear());
 					break;
 
 				case KeyEvent.VK_9:
@@ -456,18 +465,16 @@ public class QuartzCrystal extends Assignment {
 		avatarT.setMatrix(Rn.identityMatrix(4));
 	}
 
-	private void updateCamera() {
-		Camera cam = CameraUtility.getCamera(viewer);
-		cam.setNear(.02);
-		cam.setFar(15.0);
+	private void updateCamera(Camera cam) {
+		cam.setNear(.017);
+		cam.setFar(12.0);
 		cam.setEyeSeparation(.05);
 		cam.setFocus(2.5);
+		System.err.println("camera near = "+cam.getNear());
 	}
 	
 	boolean isCenterCam = false;
 	private void jumpToCenter() {
-		if (centerCamSGP == null) {
-		}
 		isCenterCam = !isCenterCam;
 		if (isCenterCam) {
 			double[] r2w = path2World.getMatrix(null);
@@ -476,7 +483,7 @@ public class QuartzCrystal extends Assignment {
 			double[] cc = bbox.getCenter();
 			double[] w2center = MatrixBuilder.euclidean().translate(cc[0], cc[1], cc[2]).getArray();
 			new Matrix(Rn.times(null, r2w, w2center)).assignTo(camsgc);
-			updateCamera();
+			updateCamera(centerCam);
 		}
 		viewer.setCameraPath(isCenterCam ? centerCamSGP : standardCamSGP);
 		viewer.renderAsync();

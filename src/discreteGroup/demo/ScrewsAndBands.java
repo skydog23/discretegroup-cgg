@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import javax.swing.JMenuBar;
 
+import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.jreality.viewer.LoadableScene;
 import de.jreality.geometry.BezierPatchMesh;
 import de.jreality.geometry.QuadMeshFactory;
@@ -23,6 +24,8 @@ import de.jreality.scene.data.AttributeEntityUtility;
 import de.jreality.shader.CommonAttributes;
 import de.jreality.shader.ImageData;
 import de.jreality.shader.Texture2D;
+import de.jreality.tutorial.util.SimpleTextureFactory;
+import de.jreality.util.CameraUtility;
 import de.jreality.util.Input;
 import de.jreality.util.SceneGraphUtility;
 import de.jtem.discretegroup.core.DiscreteGroup;
@@ -31,7 +34,7 @@ import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
 import de.jtem.discretegroup.core.DiscreteGroupSimpleConstraint;
 import de.jtem.discretegroup.groups.BorromeanUtility;
 
-public class ScrewsAndBands extends LoadableScene {
+public class ScrewsAndBands extends Assignment {
 
 	double stairRadius = .15;
 	double stairThickness = .04;
@@ -47,7 +50,7 @@ public class ScrewsAndBands extends LoadableScene {
 	SceneGraphComponent dgworld;
 	public boolean weirdSym = true;
 	@Override
-	public SceneGraphComponent makeWorld() {
+	public SceneGraphComponent getContent() {
 		DiscreteGroup dg = new DiscreteGroup();
 		dg.setDimension(3);
 		dg.setMetric(Pn.EUCLIDEAN);
@@ -90,8 +93,13 @@ public class ScrewsAndBands extends LoadableScene {
 //		tf.setType(SimpleTextureFactory.TextureType.WEAVE);
 //		tf.update();
 //		tex.setImage(tf.getImageData());
+		// This is very strange. 
+		// It tries to load a non-existent texture,
+		// and then it seems to apply instead a texture formed by the 
+		// frame buffer itself: it looks like mirrored ray tracing on the bands.
 		bandSGC.setGeometry(makeBand()); //Primitives.box(bandWidth, bandThickness, 2, false)); //
 		Appearance ap = bandSGC.getAppearance();
+		ap.setAttribute("polygonShader.diffuseColor", Color.white);
 		Texture2D tex = (Texture2D) AttributeEntityUtility.createAttributeEntity(Texture2D.class, 
 				"polygonShader.texture2d", ap, true);
 		try {
@@ -102,19 +110,26 @@ public class ScrewsAndBands extends LoadableScene {
 			e.printStackTrace();
 		}
 
-		Matrix m = new Matrix();
-		MatrixBuilder.euclidean().scale(10,4,1).assignTo(m);
-		tex.setTextureMatrix(m);
+//		SimpleTextureFactory stf = new SimpleTextureFactory();
+//		stf.setColor(0, new Color(0,0,0,0));	// gap color in weave pattern is totally transparent
+//		stf.setColor(1, new Color(255,0,100));
+//		stf.setColor(2, new Color(255,255,0));
+//		stf.update();
+//		ImageData id = stf.getImageData();
+//		tex.setImage(id);
+//		Matrix m = new Matrix();
+//		MatrixBuilder.euclidean().scale(10,4,1).assignTo(m);
+//		tex.setTextureMatrix(m);
 
 //		ap = bandSGC.getAppearance();
-//		tf = new SimpleTextureFactory();
+//		SimpleTextureFactory tf = new SimpleTextureFactory();
 //		tf.setType(SimpleTextureFactory.TextureType.WEAVE);
 //		tf.update();
 //		tex = (Texture2D) AttributeEntityUtility.createAttributeEntity(Texture2D.class, 
 //				"polygonShader.texture2d", ap, true);
 //
 //		tex.setImage(tf.getImageData());
-//		m = new Matrix();
+//		Matrix m = new Matrix();
 //		MatrixBuilder.euclidean().scale(4,10,1).assignTo(m);
 //		tex.setTextureMatrix(m);
 		
@@ -287,12 +302,9 @@ public class ScrewsAndBands extends LoadableScene {
 	}
 	
 	@Override
-	public boolean isEncompass() {
-		return true;
-	}
-
-	@Override
-	public void customize(JMenuBar menuBar, final Viewer viewer) {
+	public void display() {
+		super.display();
+		CameraUtility.encompass(viewer);
 		viewer.getSceneRoot().getAppearance().setAttribute(CommonAttributes.BACKGROUND_COLOR, new Color(20,20,20));
 		((Component) viewer.getViewingComponent()).addKeyListener(new KeyAdapter()	{
 			
@@ -311,5 +323,7 @@ public class ScrewsAndBands extends LoadableScene {
 			}
 		});
 }
-
+	public static void main(String[] args) {
+		new ScrewsAndBands().display();
+	}
 }

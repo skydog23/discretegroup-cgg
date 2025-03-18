@@ -28,6 +28,7 @@ public class QuartzConstants {
 			hex3Pts[][] = {{0,sq3,0,1}, {0,0,1,0}};
 	
 	static double stickRad = .024, oxygenRad = .06, siliconRad = .11, 
+			nullRad = 0.0,
 			basScale = 1, 
 			saturated = .5,
 			saturated2 = .15;

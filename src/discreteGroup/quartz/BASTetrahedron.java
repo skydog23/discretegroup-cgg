@@ -7,6 +7,7 @@ package discreteGroup.quartz;
 import static discreteGroup.quartz.QuartzConstants.basScale;
 import static discreteGroup.quartz.QuartzConstants.chan31Color;
 import static discreteGroup.quartz.QuartzConstants.chan32Color;
+import static discreteGroup.quartz.QuartzConstants.nullRad;
 import static discreteGroup.quartz.QuartzConstants.oxygenColor;
 import static discreteGroup.quartz.QuartzConstants.oxygenRad;
 import static discreteGroup.quartz.QuartzConstants.siliconColor;
@@ -43,7 +44,7 @@ public abstract class BASTetrahedron {
 	protected  Color[] pointClr = { siliconColor, oxygenColor, oxygenColor, oxygenColor, oxygenColor },
 			edgeClr = { chan31Color, chan31Color, chan32Color, chan32Color };
 	protected  String[] vertexLabels = { "Si", "O", "O", "O", "O" };
-	protected  double[] pointRadii = { siliconRad, oxygenRad, oxygenRad, oxygenRad, oxygenRad };
+	protected  double[] pointRadii = { siliconRad, oxygenRad, oxygenRad, nullRad, nullRad };
 
 	protected  double[][] baspts = { { 0, 0, 0 }, { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 } };
 	protected  int[][] basIndices = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 0, 4 } };

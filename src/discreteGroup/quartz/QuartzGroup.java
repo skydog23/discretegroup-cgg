@@ -412,7 +412,7 @@ public class QuartzGroup {
 			}
 		});
 		xyGroupInsp.add(bSlider);
-		final TextSlider cSlider = new TextSlider.Integer("num Els",  SwingConstants.HORIZONTAL, 1, 50, numEl);
+		final TextSlider cSlider = new TextSlider.Integer("num Els",  SwingConstants.HORIZONTAL, 1, 200, numEl);
 		cSlider.addActionListener(new ActionListener() {
 			
 			@Override

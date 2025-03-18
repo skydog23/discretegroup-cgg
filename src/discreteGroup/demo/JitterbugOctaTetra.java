@@ -3,6 +3,7 @@ package discreteGroup.demo;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -14,18 +15,16 @@ import javax.swing.JComboBox;
 import javax.swing.SwingConstants;
 
 import charlesgunn.anim.core.KeyFrameAnimatedBean;
-import charlesgunn.anim.core.KeyFrameAnimatedTransformation;
-import charlesgunn.anim.core.TimeDescriptor;
 import charlesgunn.anim.plugin.AnimationPlugin;
-import charlesgunn.anim.util.AnimationUtility.InterpolationTypes;
 import charlesgunn.jreality.geometry.ClipBox;
 import charlesgunn.jreality.newtools.FlyTool;
 import charlesgunn.jreality.viewer.Assignment;
-import charlesgunn.math.p5.P5;
+import charlesgunn.math.Biquaternion;
+import charlesgunn.math.BiquaternionUtility;
+import charlesgunn.math.Biquaternion.Metric;
 import charlesgunn.math.p5.PlueckerLineGeometry;
 import charlesgunn.util.TextSlider;
 import de.jreality.geometry.IndexedFaceSetFactory;
-import de.jreality.geometry.IndexedFaceSetUtility;
 import de.jreality.geometry.Primitives;
 import de.jreality.math.Matrix;
 import de.jreality.math.MatrixBuilder;
@@ -34,26 +33,27 @@ import de.jreality.math.Pn;
 import de.jreality.math.Rn;
 import de.jreality.scene.Appearance;
 import de.jreality.scene.SceneGraphComponent;
-import de.jreality.scene.Transformation;
 import de.jreality.scene.Viewer;
-import de.jreality.scene.event.TransformationEvent;
-import de.jreality.scene.event.TransformationListener;
 import de.jreality.shader.CommonAttributes;
+import de.jreality.shader.DefaultGeometryShader;
+import de.jreality.shader.DefaultPointShader;
+import de.jreality.shader.DefaultTextShader;
+import de.jreality.shader.ShaderUtility;
 import de.jreality.util.SceneGraphUtility;
+import de.jreality.util.SimpleURLPolicy;
 import de.jtem.discretegroup.core.DiscreteGroup;
 import de.jtem.discretegroup.core.DiscreteGroupConstraint;
 import de.jtem.discretegroup.core.DiscreteGroupConstraintUtility;
 import de.jtem.discretegroup.core.DiscreteGroupElement;
 import de.jtem.discretegroup.core.DiscreteGroupSceneGraphRepresentation;
 import de.jtem.discretegroup.core.DiscreteGroupSimpleConstraint;
-import de.jtem.discretegroup.groups.ArchimedeanSolids;
-import de.jtem.discretegroup.util.WingedEdgeUtility;
 
 public class JitterbugOctaTetra extends Assignment {
 
 	transient IndexedFaceSetFactory triangleFactory = new IndexedFaceSetFactory(),
 			gapFactory = new IndexedFaceSetFactory(),
-			gapTriFactory = new IndexedFaceSetFactory();
+			gapTriFactory = new IndexedFaceSetFactory(),
+			octaFactory = new IndexedFaceSetFactory();
 	transient private DiscreteGroup fourGroup = new DiscreteGroup(), translationGroup, pointGroup;
 	transient private DiscreteGroupSceneGraphRepresentation tlateRepn, pointRepn,
 		fourGroupRepn = new DiscreteGroupSceneGraphRepresentation(fourGroup);
@@ -69,6 +69,7 @@ public class JitterbugOctaTetra extends Assignment {
 
 	double time = 0.0,
 			clipSize = 3;
+	transient protected boolean oneSplitOnly = false;
 
 	@Override
 	public SceneGraphComponent getContent() {
@@ -85,6 +86,7 @@ public class JitterbugOctaTetra extends Assignment {
 		triangleFactory.setVertexCount(3);
 		triangleFactory.setFaceCount(1);
 		triangleFactory.setFaceIndices(new int[][]{{0,1,2}});
+//		triangleFactory.setVertexLabels(new String[] {"A","B","C"});
 //		triangleFactory.setEdgeCount(1);
 //		triangleFactory.setEdgeIndices(new int[][]{{0,1}});
 		triangleFactory.setGenerateEdgesFromFaces(true);
@@ -93,6 +95,7 @@ public class JitterbugOctaTetra extends Assignment {
 		gapFactory.setVertexCount(3);
 		gapFactory.setFaceCount(1);
 		gapFactory.setFaceIndices(new int[][]{{0,1,2}});
+		gapFactory.setFaceColors(new Color[] {Color.white});
 //		gapFactory.setEdgeCount(1);
 //		gapFactory.setEdgeIndices(new int[][]{{1,2}});
 		gapFactory.setGenerateEdgesFromFaces(true);
@@ -105,6 +108,16 @@ public class JitterbugOctaTetra extends Assignment {
 //		gapTriFactory.setEdgeIndices(new int[][]{{0,1},{2,0}});
 		gapTriFactory.setGenerateEdgesFromFaces(true);
 		gapTriFactory.setGenerateFaceNormals(true);
+		
+		octaFactory.setVertexCount(8);
+		octaFactory.setFaceCount(8);
+		octaFactory.setFaceIndices(new int[][]{{0,1,2}});
+//		octaFactory.setEdgeCount(1);
+//		octaFactory.setEdgeIndices(new int[][]{{0,1}});
+		octaFactory.setGenerateEdgesFromFaces(true);
+		octaFactory.setGenerateFaceNormals(true);
+
+
 		setValueAtTime(time);
 		triLinearSGC.setGeometry(triangleFactory.getIndexedFaceSet());
 		tri1GoodSGC.setGeometry(gapFactory.getIndexedFaceSet());
@@ -114,9 +127,18 @@ public class JitterbugOctaTetra extends Assignment {
 	    ap.setAttribute("lineShader.diffuseColor", Color.blue);
 		ap.setAttribute("pointShader.polygonShader.diffuseColor", 
 				new Color(1f, 1f, 0f));
-		ap.setAttribute(CommonAttributes.TUBE_RADIUS, .02);
-		ap.setAttribute(CommonAttributes.AMBIENT_COEFFICIENT, .1);
-		ap.setAttribute(CommonAttributes.AMBIENT_COLOR, Color.white);
+		ap.setAttribute("lineShader."+CommonAttributes.TUBE_RADIUS, .02);
+//		ap.setAttribute(CommonAttributes.SHOW_LABELS, true);
+		ap.setAttribute(CommonAttributes.VERTEX_DRAW, true);
+		DefaultGeometryShader dgs = ShaderUtility.createDefaultGeometryShader(ap, false);
+		DefaultTextShader pts = (DefaultTextShader) ((DefaultPointShader) dgs.getPointShader()).getTextShader();
+		pts.setDiffuseColor(new Color(153, 255, 153));
+		pts.setScale(.0025);
+		pts.setOffset(new double[] { .0, .04, .2 });
+		pts.setAlignment(SwingConstants.NORTH_EAST);
+		Font f = new Font("Arial Bold", Font.ITALIC, 48);
+		pts.setFont(f);
+
 //		ap = triSGC.getAppearance();
 //	    ap.setAttribute("polygonShader.diffuseColor", Color.yellow);
 //		ap = gapSGC.getAppearance();
@@ -125,19 +147,34 @@ public class JitterbugOctaTetra extends Assignment {
 //	    ap.setAttribute("polygonShader.diffuseColor", Color.red);
 	    
 	    pointGroup = new DiscreteGroup();
-	    
-		DiscreteGroupElement[] gens = new DiscreteGroupElement[4];
-		double[][] axes = { {1,0,0}, {0,1,0}, {0,0,1}};
-		String[] names = {"x","y","z","m"};
-		for (int i = 0; i<3; ++i)	{
-			gens[i] = new DiscreteGroupElement( 
-					Pn.EUCLIDEAN, MatrixBuilder.euclidean().rotate(Math.PI,axes[i]).getArray(),names[i]);
-		}
-		gens[3] = new DiscreteGroupElement( 
-				Pn.EUCLIDEAN, MatrixBuilder.euclidean().reflect(new double[] {1,0,0,0}).getArray(),names[3]);
+	    DiscreteGroupElement[] gens = null;
+	    int numEls = 0;
+		double[][] axes = { {1,0,0}, {0,1,0}, {0,0,1}, {1,-1,0}};
+	    if (oneSplitOnly)   {
+			gens = new DiscreteGroupElement[2];
+			String[] names = {"m","n","r"};
+			double[][] planes = {{1,0,0,0},{0,1,0,0}};
+//			for (int i = 0; i<2; ++i)	{
+				gens[0] = new DiscreteGroupElement( 
+						Pn.EUCLIDEAN, MatrixBuilder.euclidean().rotateZ(Math.PI).getArray(),names[2]);
+//			}
+			gens[1] = new DiscreteGroupElement( 
+					Pn.EUCLIDEAN, MatrixBuilder.euclidean().rotate(Math.PI,axes[3]).reflect(planes[0]).getArray(),names[0]);
+	    	numEls = 8;
+	    } else {
+			gens = new DiscreteGroupElement[4];
+			String[] names = {"x","y","z","m"};
+			for (int i = 0; i<3; ++i)	{
+				gens[i] = new DiscreteGroupElement( 
+						Pn.EUCLIDEAN, MatrixBuilder.euclidean().rotate(Math.PI,axes[i]).getArray(),names[i]);
+			}
+			gens[3] = new DiscreteGroupElement( 
+					Pn.EUCLIDEAN, MatrixBuilder.euclidean().reflect(new double[] {1,0,0,0}).getArray(),names[3]);
+			numEls = 8;
+	    }
+		diconst.setMaxNumberElements(numEls);	    	
 		pointGroup.setGenerators(gens);	
 		pointGroup.setFinite(true);
-		diconst.setMaxNumberElements(8);
 		pointGroup.update();
 		pointRepn = new DiscreteGroupSceneGraphRepresentation(pointGroup);
 		
@@ -187,7 +224,12 @@ public class JitterbugOctaTetra extends Assignment {
 		});
 		
 		tlateRepn = new DiscreteGroupSceneGraphRepresentation(translationGroup);
-		tlateRepn.setWorldNode(pointRepn.getRepresentationRoot()); //dgsgr.getSceneGraphRepn());
+		SceneGraphComponent collect3SGC = SceneGraphUtility.createFullSceneGraphComponent(),
+				child = SceneGraphUtility.createFullSceneGraphComponent();
+		child.addChildren(pointRepn.getRepresentationRoot());
+		new Matrix(magicMatrix()).assignTo(child);
+		collect3SGC.addChildren(child, pointRepn.getRepresentationRoot());
+		tlateRepn.setWorldNode(pointRepn.getSceneGraphRepn());
 		tlateRepn.setClipToCamera(false);
 		tlateRepn.setFollowsCamera(false);
 		tlateRepn.update();
@@ -268,13 +310,17 @@ public class JitterbugOctaTetra extends Assignment {
 		// the second attempts keeps the length of at one edges constant
 		// The third uses Mathematica code to adjust the third vertex so that the triangle remains the same size and equilateral
 		// Unfortunately only the first avoids distracting self-intersections of neighboring triangles
+		//{-t, -2*t, k*(1.5*t-1),1}
 		double[][] coords = {{1-t, 1, k*t,1}, {0, -t, k*(2-t),1}, { 1, t-1, -k*t,1}};
+		double[][] coordsGap = {{1-t, 1, k*t,1}, {0, -t, k*(2-t),1}, { -1, -(t-1), -k*t,1}};
+//		double[][][] pairs = {{{0,0,k},{-1,-1,0},{1,-1,0}},{{1,0,k/2},{0,-1,-k/2},{2,0
+//		double[][] coordsGap = {{1-t, 1, k*t,1}, {2* t, t, k*(3*t-2),1}, { 1, (t-1), -k*t,1}};
 		double[][] coordsWH = {{1-t, 1, h(t),1}, {0, -t, k+h(1-t),1}, { 1, t-1, -h(t),1}};
 		double  sc = 1.0/(-8+2*Math.pow(t,2)),
 				y = sc*((2*(4*Math.pow(t,2) - 4*Math.pow(t,3) + Math.pow(t,4) - 
 		          2*Math.sqrt(2)*Math.sqrt(-((-2 + t)*t))*Math.sqrt(-(Math.pow(-2 + t,3)*(1 + t)))))/(-2 + t)),
 				z =  sc*(2*Math.sqrt(2)*t*Math.sqrt(-((-2 + t)*t)) 
-					- Math.sqrt(2)*Math.pow(t,2)*Math.sqrt(-((-2 + t)*t)) 
+					- Math.sqrt(2)*Math.pow(t,2)*Math.sqrt(-((-2 + t)*t))
 			        - 4*Math.sqrt(-(Math.pow(-2 + t,3)*(1 + t))));
 			      
 		double[][] coordsWHWM = {coordsWH[0], {0, y, z, 1}, coordsWH[2]};
@@ -290,12 +336,23 @@ public class JitterbugOctaTetra extends Assignment {
 //		System.err.println("distsWHWM = "+Rn.toString(dswhwm));
 		triangleFactory.setVertexCoordinates(coords);
 		triangleFactory.update();
-		gapFactory.setVertexCoordinates(coordsWH);
+		gapFactory.setVertexCoordinates(coordsGap); //coordsWH);
 		gapFactory.update();
 		gapTriFactory.setVertexCoordinates(coordsWHWM);
 		gapTriFactory.update();
 	}
 
+	private double[] magicMatrix()	{
+		double[] p1 = {0,-1,k,1}, p2 = {1,0,-k,1};
+		double[] ln = PlueckerLineGeometry.lineFromPoints(null, p1, p2);
+		Biquaternion biq = new Biquaternion(ln, Metric.EUCLIDEAN);
+		Biquaternion rot = Biquaternion.exp(null, biq, new Biquaternion(1, 0, Metric.EUCLIDEAN), Math.PI/2);
+		double[] m = Biquaternion.matrixFromBiquaternion(null, rot);
+		System.err.println("Line = "+Rn.toString(ln));
+		System.err.println("Biq = "+biq.toString());
+			System.err.println("Matrix = "+Rn.matrixToJavaString(m));
+		return m;
+	}
 	@Override
 	public Component getInspector() {
 		Box container = (Box) super.getInspector();
