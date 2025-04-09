@@ -145,10 +145,10 @@ import de.jtem.discretegroup.groups.BorromeanUtility;
 import de.jtem.discretegroup.groups.CrystallographicGroup;
 import de.jtem.discretegroup.groups.Platycosm;
 import de.jtem.discretegroup.groups.Spherical3DGroup;
+import de.jtem.discretegroup.spacegroups.GroupGeneratorFactory;
 import de.jtem.discretegroup.util.WingedEdge;
 import de.jtem.discretegroup.util.WingedEdgeUtility;
 import discreteGroup.ResourceClass;
-import discreteGroup.spacegroups.GroupGeneratorFactory;
 import discreteGroup.tools.CopyClickTool;
 
 public class Maniview {

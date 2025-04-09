@@ -84,21 +84,35 @@ import de.jtem.discretegroup.plugin.DirichletDomainSP;
 import de.jtem.discretegroup.plugin.DiscreteGroupLoader;
 import de.jtem.discretegroup.plugin.FogPlugin;
 import de.jtem.discretegroup.plugin.TessellatedContent;
+import de.jtem.discretegroup.spacegroups.GroupGeneratorFactory;
 
 public class SimpleManiview  {
 	private DiscreteGroup dg;
 	DirichletDomain dirdom;
 	private static Color backgroundColor;
 	private JRViewer jrv;
-
+	static boolean copyCat = false;
+	
 	private static JrScene createDefaultScene() {
 		JrScene scene;
 		SceneGraphComponent sceneroot = SceneGraphUtility.createFullSceneGraphComponent("root");
 		SceneGraphComponent world = SceneGraphUtility.createFullSceneGraphComponent("world");
+		
+		/*********************
+		Hack attack! load some geometry to debug the irreducible group class
+		*/
+		SceneGraphComponent tetraSGC = SceneGraphUtility.createFullSceneGraphComponent("tetra");
+		Appearance ap = tetraSGC.getAppearance();
+		ap.setAttribute(CommonAttributes.FACE_DRAW, false);
+		ap.setAttribute(CommonAttributes.EDGE_DRAW, true);
+		ap.setAttribute(CommonAttributes.VERTEX_DRAW, true);
+		tetraSGC.setGeometry(GroupGeneratorFactory.getTetra());
+		world.addChild(tetraSGC);
+		
 		sceneroot.addChild(world);
 		world.addTool(new RotateTool());
 		sceneroot.addTool(new EncompassTool());
-		Appearance ap = sceneroot.getAppearance();
+		ap = sceneroot.getAppearance();
 		backgroundColor = new Color(20,20,40);
 		ap.setAttribute(CommonAttributes.BACKGROUND_COLOR, backgroundColor);
 		ap.setAttribute(CommonAttributes.BACKGROUND_COLORS, Appearance.INHERITED);
@@ -138,7 +152,8 @@ public class SimpleManiview  {
 	}
 	
 	private DiscreteGroup getGroup()	{
-		DiscreteGroup group = Platycosm.instanceOfGroup("-a2");
+		DiscreteGroup group = GroupGeneratorFactory.getD8Group("1.");
+//		DiscreteGroup group = Platycosm.instanceOfGroup("-a2");
 //		DiscreteGroup group = BorromeanUtility.borromeanGroupOfOrder(4);
 //		dirdom = new DirichletDomain(group);
 		group.update();
@@ -200,9 +215,9 @@ public class SimpleManiview  {
 
 		// following is now optional; without it uses trivial group
 		dg = getGroup();
-		tessellatedContent.setClipToCamera(true);
-		tessellatedContent.setFollowsCamera(true);
-		tessellatedContent.setGroup(dg, true);
+//		tessellatedContent.setClipToCamera(true);
+//		tessellatedContent.setFollowsCamera(true);
+		tessellatedContent.setGroup(dg, copyCat);
 //		RenderTrigger rt = new RenderTrigger();
 //		rt.addSceneGraphComponent(c)
 		Viewer v = jrv.getPlugin(View.class).getViewer();
@@ -219,7 +234,7 @@ public class SimpleManiview  {
 		// turn off render trigger since it slows down the tessellation rendering too much
 		// has to be done here since it's evaluated once-for=all at startup
 //		Secure.setProperty(SystemProperties.AUTO_RENDER, "false");
-		Secure.setProperty(SystemProperties.JOGL_COPY_CAT, "true");
+		Secure.setProperty(SystemProperties.JOGL_COPY_CAT, copyCat ? "true" : "false");
 		SimpleManiview sm = new SimpleManiview();
 		sm.doIt();
 	}
