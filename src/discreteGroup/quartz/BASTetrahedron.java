@@ -44,7 +44,7 @@ public abstract class BASTetrahedron {
 	protected  Color[] pointClr = { siliconColor, oxygenColor, oxygenColor, oxygenColor, oxygenColor },
 			edgeClr = { chan31Color, chan31Color, chan32Color, chan32Color };
 	protected  String[] vertexLabels = { "Si", "O", "O", "O", "O" };
-	protected  double[] pointRadii = { siliconRad, oxygenRad, oxygenRad, nullRad, nullRad };
+	protected  double[] pointRadii = { siliconRad, oxygenRad, nullRad, oxygenRad, nullRad };
 
 	protected  double[][] baspts = { { 0, 0, 0 }, { 1, 1, 1 }, { 1, -1, -1 }, { -1, 1, -1 }, { -1, -1, 1 } };
 	protected  int[][] basIndices = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 0, 4 } };

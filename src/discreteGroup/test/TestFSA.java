@@ -7,7 +7,7 @@ import de.jtem.discretegroup.core.DiscreteGroupSimpleConstraint;
 import de.jtem.discretegroup.core.DiscreteGroupUtility;
 import de.jtem.discretegroup.core.FiniteStateAutomaton;
 import de.jtem.discretegroup.core.FiniteStateAutomatonUtility;
-import discreteGroup.spacegroups.GroupGeneratorFactory;
+import de.jtem.discretegroup.spacegroups.GroupGeneratorFactory;
 
 
 public class TestFSA extends TestCase {
