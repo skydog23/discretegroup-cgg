@@ -8,6 +8,7 @@ import static discreteGroup.quartz.QuartzConstants.chan31Color;
 import static discreteGroup.quartz.QuartzConstants.chan32Color;
 import static discreteGroup.quartz.QuartzConstants.edge3Color;
 import static discreteGroup.quartz.QuartzConstants.edge4Color;
+import static discreteGroup.quartz.QuartzConstants.nullRad;
 import static discreteGroup.quartz.QuartzConstants.siliconColor;
 import static discreteGroup.quartz.QuartzConstants.siliconRad;
 
@@ -73,7 +74,7 @@ public class DiamondCrystal extends Assignment {
 			edgeClr = { chan31Color, edge3Color, chan32Color, edge4Color },
 			rhdoClr = {QuartzConstants.RD1, QuartzConstants.RD2, QuartzConstants.RD3, QuartzConstants.RD4};
 	protected static String[] vertexLabels = { "Si", "Si", "Si", "Si", "Si"};
-	protected static double[] pointRadii = { siliconRad, siliconRad, siliconRad, siliconRad, siliconRad };
+	protected static double[] pointRadii = { siliconRad, siliconRad, nullRad, nullRad, nullRad };
 	protected QuartzGeometry qg = new QuartzGeometry(null);
 	protected BASTetrahedron basTetra = new DiamondBASTetrahedron();
 	DirichletDomain dd = null;
