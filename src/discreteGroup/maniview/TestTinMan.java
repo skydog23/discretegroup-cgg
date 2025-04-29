@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.Box;
 import javax.swing.SwingConstants;
@@ -13,6 +15,7 @@ import javax.swing.Timer;
 import charlesgunn.anim.core.FramedCurve;
 import charlesgunn.jreality.geometry.OneArmedTinManFactory;
 import charlesgunn.jreality.geometry.SnakeFactory;
+import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.jreality.viewer.GlobalProperties;
 import charlesgunn.jreality.viewer.LoadableScene;
 import charlesgunn.util.TextSlider;
@@ -29,8 +32,7 @@ import de.jreality.scene.Viewer;
 import de.jreality.shader.CommonAttributes;
 import de.jreality.util.Rectangle3D;
 
-public class TestTinMan extends LoadableScene {
-
+public class TestTinMan extends Assignment {
 	private SceneGraphComponent tm, stickTipSGC;
 	double height = 1.0, angle = 0.0, handAngle = 0.0, distance = .5;
 	private OneArmedTinManFactory tmf;
@@ -38,7 +40,7 @@ public class TestTinMan extends LoadableScene {
 	FramedCurve fc = new FramedCurve();
 	Timer tt;
 	@Override
-	public SceneGraphComponent makeWorld() {
+	public SceneGraphComponent getContent() {
 		if (GlobalProperties.isPortal)	{
 			TinManTool tmt = new TinManTool();
 			tm = new SceneGraphComponent("avatar Repn");
@@ -112,7 +114,6 @@ public class TestTinMan extends LoadableScene {
 		return world;
 	}
 	private double myrandom()	{ return -1+2*Math.random(); }
-	public boolean isEncompass() { return true; } //!InteractiveViewer.isPortal; }
 	final double[] fd = Rn.normalize(null, new double[]{1,-1,-1});
 	Matrix headMat = new Matrix(), wandMat = new Matrix();
 	boolean automate = false;
@@ -138,9 +139,37 @@ public class TestTinMan extends LoadableScene {
 		sf.addPoint(tmf.getStickTipWorldPosition());
 		sf.update();
 	}
+	
 	@Override
-	public Component getInspector(Viewer v) {
-		Box panel = Box.createVerticalBox();
+	public void display() {
+		// TODO Auto-generated method stub
+		super.display();
+		
+		Component comp = ((Component) viewer.getViewingComponent());
+		comp.addKeyListener(new KeyAdapter() {
+ 				public void keyPressed(KeyEvent e)	{ 
+					switch(e.getKeyCode())	{
+						
+					case KeyEvent.VK_H:
+						System.err.println("	1: restart timer");
+						break;
+		
+					case KeyEvent.VK_1:
+						System.err.println("keystroke 1");
+						tt.stop();
+						sf.reset();
+						sf.update();
+						tt.start();
+						update();
+						break;
+					}
+				}
+			});
+
+	}
+	@Override
+	public Component getInspector() {
+		Box panel = inspector; //Box.createVerticalBox();
 		panel.setName("tin man");
 		final TextSlider ts = new TextSlider.Double("height",SwingConstants.HORIZONTAL,0.0,1.0,height);
 		ts.addActionListener(new ActionListener()	{
@@ -190,10 +219,13 @@ public class TestTinMan extends LoadableScene {
 		return panel;
 	}
 
-	@Override
-	public boolean hasInspector() {
-		return true;
-	}
+//	@Override
+//	public boolean hasInspector() {
+//		return true;
+//	}
 	
+	public static void main(String[] args) {
+		new TestTinMan().display();
+	}
 	
 }
