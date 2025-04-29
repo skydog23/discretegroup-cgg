@@ -7,7 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ProjectiveGeometry"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jrworkspace"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/filedrop.jar"/>
 	<classpathentry kind="lib" path="lib/java2d.jar"/>
 	<classpathentry kind="lib" path="lib/jh.jar"/>
@@ -21,5 +20,6 @@
 	<classpathentry kind="lib" path="/jreality/lib/jogamp/jogl-all.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jreality"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/animation"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
