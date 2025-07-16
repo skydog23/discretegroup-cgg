@@ -136,7 +136,7 @@ public class TriangleGroupDemo extends Assignment {
 	double invisiblePointRadius = .1,
 		blendFactor = 1,
 		scale = 1.0;
-	boolean testAzimuth = true,
+	boolean testAzimuth = false,
 		showPoincare = false,
 		doAzimuth = false,
 		dragCenter = false,
@@ -195,7 +195,7 @@ public class TriangleGroupDemo extends Assignment {
 		bullsEyeSGC.getAppearance().setAttribute(CommonAttributes.DIFFUSE_COLOR, Color.white);
 		diskHolder2 = SceneGraphUtility.createFullSceneGraphComponent("disk holder 2");
 		diskHolder2.addChild(bullsEyeSGC);
-		diskHolder2.setVisible(false);
+		diskHolder2.setVisible(true);
 		bullsEyeSGC.getAppearance().setAttribute(TRANSPARENCY_ENABLED, true);
 		bullsEyeSGC.getAppearance().setAttribute(EDGE_DRAW, false);
 		PickUtility.setPickable(bullsEyeSGC, false, false, true);
@@ -273,8 +273,8 @@ public class TriangleGroupDemo extends Assignment {
 		polarPlaneSGC = SceneGraphUtility.createFullSceneGraphComponent("polarPlane");	
 		PickUtility.setPickable(quadkitHolder, false, false, true);
 		polarPlaneSGC.setPickable(false);
-//		quadkit.addChildren(dragToolSGC, quadkitHolder, polarPlaneSGC);
-		quadkit.addChildren( quadkitHolder, polarPlaneSGC);
+		quadkit.addChildren(dragToolSGC, quadkitHolder, polarPlaneSGC);
+//		quadkit.addChildren( quadkitHolder, polarPlaneSGC);
 //		for (int i = 0; i<3; ++i)	{
 //			app = threeChildren[i].getAppearance();
 //		  			id = images[i];//ImageData.load(Input.getInput(texture)); //"grid256rgba.png")); //weaveRGBABright.png"));
@@ -287,7 +287,7 @@ public class TriangleGroupDemo extends Assignment {
 //		}
 //	   
 		dragCenterTool = new DragCenterTool();
-//		theWorld.addTool(dragCenterTool);
+		theWorld.addTool(dragCenterTool);
 		translateTool = new TranslateShapeTool() {
 
 			@Override
@@ -411,7 +411,7 @@ public class TriangleGroupDemo extends Assignment {
 				updateFaceColors();
 //				System.err.println("Updating quadkit"+quads.getNumFaces());
 				double[][] verts = quads.getVertexAttributes(Attribute.COORDINATES).toDoubleArrayArray(null);
-				System.err.println("quad verts = \n"+Rn.toString(verts));
+//				System.err.println("quad verts = \n"+Rn.toString(verts));
 				fundamentalTriangleVerts = new double[][] {verts[1], verts[2], verts[3]};
 				if (!separateQuads && quadkitHolder.getGeometry() != quads) {
 //					updateFaceColors();
@@ -635,6 +635,7 @@ public class TriangleGroupDemo extends Assignment {
 		double[] pick2world = new double[16],
 			pick2root = new double[16],
 			root2world = new double[16];
+//		public DragCenterTool()
 		{
 	   		addCurrentSlot(pointerSlot);
 	    }
@@ -689,7 +690,7 @@ public class TriangleGroupDemo extends Assignment {
 		// TODO Auto-generated method stub
 		pluginsToLoad.add(new Shell());
 		pluginsToLoad.add(contentPlugin);
-		pluginsToLoad.add(new ContentTools());
+//		pluginsToLoad.add(new ContentTools());
 		pluginsToLoad.add(new ContentLoader());
 		pluginsToLoad.add(new ViewPreferences());
 		animationPlugin = new AnimationPlugin();
