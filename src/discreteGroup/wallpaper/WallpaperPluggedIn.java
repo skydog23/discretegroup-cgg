@@ -47,7 +47,6 @@ import de.jreality.scene.Appearance;
 import de.jreality.scene.IndexedFaceSet;
 import de.jreality.scene.Scene;
 import de.jreality.scene.SceneGraphComponent;
-import de.jreality.scene.SceneGraphNode;
 import de.jreality.scene.SceneGraphPath;
 import de.jreality.scene.Transformation;
 import de.jreality.scene.Viewer;
@@ -144,7 +143,6 @@ public class WallpaperPluggedIn extends LoadableScene  {
 	
 @Override
 	public SceneGraphComponent makeWorld()	{
-		SceneGraphNode.setThreadSafe(false);
 		theWorld = SceneGraphUtility.createFullSceneGraphComponent("theWorld");
 		theWorld.getAppearance().setAttribute(
 				LINE_SHADER+"."+DIFFUSE_COLOR, java.awt.Color.WHITE);
@@ -641,7 +639,6 @@ public class WallpaperPluggedIn extends LoadableScene  {
     	System.err.println("cp = "+cp);
 
 //		ViewerAppLoader val = TestViewerApp.makeViewerAppLoader();
-		SceneGraphNode.setThreadSafe(false);
 		PluginSceneLoader psl = new PluginSceneLoader();
 		WallpaperPluggedIn ls = new WallpaperPluggedIn();
 		psl.loadScene(ls);
