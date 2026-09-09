@@ -18,6 +18,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.colorchooser.ColorSelectionModel;
 
+import charlesgunn.jreality.viewer.Assignment;
 import charlesgunn.jreality.viewer.LoadableScene;
 import de.jreality.geometry.BoundingBoxUtility;
 import de.jreality.geometry.IndexedFaceSetFactory;
@@ -50,7 +51,7 @@ import de.jtem.discretegroup.core.DiscreteGroupUtility;
 import de.jtem.discretegroup.util.WingedEdge;
 
 
-public class FangStar extends LoadableScene {
+public class FangStar extends Assignment {
 	SceneGraphComponent theWorld, scaledFangSGC, quadkit;
 	SceneGraphComponent oneFourth, fourFourths;
 	DiscreteGroupSceneGraphRepresentation theMainRepn;
@@ -73,7 +74,7 @@ public class FangStar extends LoadableScene {
 //			dcolors[i] = colorToDouble(null, colors[i]);
 //	}
 
-	public SceneGraphComponent makeWorld() {
+	public SceneGraphComponent getContent() {
 		SceneGraphNode.setThreadSafe(false);
 		theWorld =  SceneGraphUtility.createFullSceneGraphComponent("theWorld");
 		oneFourth = new SceneGraphComponent("One fourth");
@@ -257,7 +258,8 @@ public class FangStar extends LoadableScene {
 	}
 
 	@Override
-	public void customize(JMenuBar menuBar, Viewer viewer) {
+	public void display() {
+		super.display();
 		JMenu testM = new JMenu("Actions");
 //		JMenuItem jca = new JMenuItem("Cycle selection");
 //		testM.add(jca);
@@ -283,7 +285,7 @@ public class FangStar extends LoadableScene {
 					triacontahedronSGC.setVisible(!triacontahedronSGC.isVisible());
 				}
 			});
-		menuBar.add(testM);
+//		menuBar.add(testM);
 		final Color URBackground = new Color(.8f, .85f, .68f); //new Color(215, 215, 190);
 		final Color ULBackground  = new Color(1f, .98f, .8f); //new Color(255, 255, 200);  // bg[1];
 		final Color LLBackground  = new Color(.1f, .1f, .25f); //new Color(20,20,60);
@@ -294,5 +296,9 @@ public class FangStar extends LoadableScene {
 		bg[2] = LLBackground;
 		bg[3] = LRBackground;  //bg[2];
 		viewer.getSceneRoot().getAppearance().setAttribute("backgroundColors", bg);
+	}
+	
+	public static void main(String[] args) {
+		new FangStar().display();
 	}
 }
