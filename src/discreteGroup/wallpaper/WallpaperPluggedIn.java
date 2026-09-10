@@ -162,7 +162,7 @@ public class WallpaperPluggedIn extends LoadableScene  {
 		backgroundTile.addChild(elSGC);
 		theFullMonty.addChild(backgroundTile);
 		running = false;
-		timer = new Timer(20, new ActionListener() {
+		timer = new Timer(10, new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				currentPlugin.update();
 			}
